@@ -1,10 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:hydrate/src/data/hive_service.dart';
+import 'package:hydrate/src/data/repositories/dummy_user_preferences_repository.dart';
 import 'package:hydrate/src/data/repositories/dummy_water_repository.dart';
+import 'package:hydrate/src/data/repositories/user_preferences_repository_impl.dart';
 import 'package:hydrate/src/data/repositories/water_repository_impl.dart';
 import 'package:hydrate/src/domain/models/daily_summary.dart';
+import 'package:hydrate/src/domain/models/user_preferences.dart';
 import 'package:hydrate/src/domain/models/water_log.dart';
+import 'package:hydrate/src/domain/repositories/user_preferences_repository.dart';
 import 'package:hydrate/src/domain/repositories/water_repository.dart';
 
 final hiveServiceProvider = Provider<HiveService>((ref) {
@@ -21,6 +25,13 @@ final dailySummaryBoxProvider = FutureProvider<Box<DailySummary>>((ref) async {
   return await hiveService.openBox<DailySummary>('daily_summary');
 });
 
+final userPreferencesBoxProvider = FutureProvider<Box<UserPreferences>>((
+  ref,
+) async {
+  final hiveService = ref.watch(hiveServiceProvider);
+  return await hiveService.openBox<UserPreferences>('user_preferences');
+});
+
 final waterRepositoryProvider = Provider<IWaterRepository>((ref) {
   final waterLogBox = ref.watch(waterLogBoxProvider);
   final dailySummaryBox = ref.watch(dailySummaryBoxProvider);
@@ -34,5 +45,18 @@ final waterRepositoryProvider = Provider<IWaterRepository>((ref) {
     ),
     loading: () => DummyWaterRepository(),
     error: (error, stackTrace) => DummyWaterRepository(),
+  );
+});
+
+final userPreferencesRepositoryProvider = Provider<IUserPreferencesRepository>((
+  ref,
+) {
+  final userPreferencesBox = ref.watch(userPreferencesBoxProvider);
+
+  return userPreferencesBox.when(
+    data: (userPreferencesBoxData) =>
+        UserPreferencesRepositoryImpl(userPreferencesBoxData),
+    loading: () => DummyUserPreferencesRepository(),
+    error: (error, stackTrace) => DummyUserPreferencesRepository(),
   );
 });

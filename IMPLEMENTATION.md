@@ -1,7 +1,9 @@
 **2025-11-13**
 *   **Phase 6:** Settings Screen UI.
 *   **Learnings:**
-    *   None.
+    *   `StateNotifierProvider` is used to expose a `StateNotifier` and its state.
+    *   `FutureProvider` is used for asynchronous initialization of dependencies.
+    *   `DummyUserPreferencesRepository` and `UserPreferencesRepositoryImpl` were created to handle user preferences data.
 *   **Surprises:**
     *   None.
 *   **Deviations:**
@@ -79,9 +81,9 @@ After this phase, I will perform the post-phase checks as outlined in Phase 1.
 
 ## Phase 6: Settings Screen UI
 
-- [ ] Create the `SettingsScreen` widget.
-- [ ] Implement the `GoalSetting`, `UnitSelector`, `NotificationPreferences`, `WeightInput`, and `DarkModeToggle` widgets.
-- [ ] Connect the UI to the `UserPreferencesNotifier` to display and update settings.
+- [x] Create the `SettingsScreen` widget.
+- [x] Implement the `GoalSetting`, `UnitSelector`, `NotificationPreferences`, `WeightInput`, and `DarkModeToggle` widgets.
+- [x] Connect the UI to the `UserPreferencesNotifier` to display and update settings.
 
 After this phase, I will perform the post-phase checks as outlined in Phase 1.
 

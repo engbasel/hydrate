@@ -1,6 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hydrate/src/domain/models/user_preferences.dart';
 import 'package:hydrate/src/domain/repositories/user_preferences_repository.dart';
+import 'package:hydrate/src/app/providers/repository_providers.dart';
+
+final userPreferencesProvider =
+    StateNotifierProvider<UserPreferencesNotifier, UserPreferences>(
+      (ref) =>
+          UserPreferencesNotifier(ref.watch(userPreferencesRepositoryProvider)),
+    );
 
 class UserPreferencesNotifier extends StateNotifier<UserPreferences> {
   final IUserPreferencesRepository _userPreferencesRepository;
@@ -33,8 +40,8 @@ class UserPreferencesNotifier extends StateNotifier<UserPreferences> {
     await _userPreferencesRepository.saveUserPreferences(state);
   }
 
-  Future<void> toggleDarkMode() async {
-    state = state.copyWith(darkModeEnabled: !state.darkModeEnabled);
+  Future<void> toggleDarkMode(bool value) async {
+    state = state.copyWith(darkModeEnabled: value);
     await _userPreferencesRepository.saveUserPreferences(state);
   }
 

@@ -8,12 +8,12 @@ class UserPreferencesRepositoryImpl implements IUserPreferencesRepository {
   UserPreferencesRepositoryImpl(this._userPreferencesBox);
 
   @override
-  Future<void> saveUserPreferences(UserPreferences preferences) async {
-    await _userPreferencesBox.put('user_preferences', preferences);
+  Future<UserPreferences?> loadUserPreferences() async {
+    return _userPreferencesBox.get('user_preferences');
   }
 
   @override
-  Future<UserPreferences?> loadUserPreferences() async {
-    return _userPreferencesBox.get('user_preferences');
+  Future<void> saveUserPreferences(UserPreferences preferences) async {
+    await _userPreferencesBox.put('user_preferences', preferences);
   }
 }
