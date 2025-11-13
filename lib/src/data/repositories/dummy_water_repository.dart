@@ -4,13 +4,8 @@ import 'package:hydrate/src/domain/repositories/water_repository.dart';
 
 class DummyWaterRepository implements IWaterRepository {
   @override
-  Future<List<DailySummary>> getAllDailySummaries() {
-    return Future.value([]);
-  }
-
-  @override
-  Future<DailySummary?> getDailySummaryForDate(DateTime date) {
-    return Future.value(null);
+  Future<void> addWaterLog(WaterLog log) {
+    return Future.value();
   }
 
   @override
@@ -19,12 +14,17 @@ class DummyWaterRepository implements IWaterRepository {
   }
 
   @override
-  Future<void> saveDailySummary(DailySummary summary) {
+  Future<void> addDailySummary(DailySummary summary) {
     return Future.value();
   }
 
   @override
-  Future<void> saveWaterLog(WaterLog log) {
-    return Future.value();
+  Future<DailySummary?> getDailySummaryForDate(DateTime date) {
+    return Future.value(null);
+  }
+
+  @override
+  Future<List<DailySummary>> getWaterIntakeHistory() {
+    return Future.value([]);
   }
 }

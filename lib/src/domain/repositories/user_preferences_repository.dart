@@ -2,5 +2,5 @@ import 'package:hydrate/src/domain/models/user_preferences.dart';
 
 abstract class IUserPreferencesRepository {
   Future<void> saveUserPreferences(UserPreferences preferences);
-  Future<UserPreferences?> getUserPreferences();
+  Future<UserPreferences?> loadUserPreferences();
 }

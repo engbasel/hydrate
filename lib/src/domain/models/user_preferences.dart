@@ -1,29 +1,56 @@
+import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 
 part 'user_preferences.g.dart';
 
 @HiveType(typeId: 1)
-class UserPreferences {
+class UserPreferences extends Equatable {
   @HiveField(0)
-  double dailyGoalMl;
+  final double dailyGoalMl;
 
   @HiveField(1)
-  String unit; // "ml" or "oz"
+  final String unit; // "ml" or "oz"
 
   @HiveField(2)
-  List<int> notificationIntervals; // e.g., [9, 12, 15, 18] for 9 AM, 12 PM, etc.
+  final List<int> notificationIntervals; // e.g., [9, 12, 15, 18] for 9 AM, 12 PM, etc.
 
   @HiveField(3)
-  bool darkModeEnabled;
+  final bool darkModeEnabled;
 
   @HiveField(4)
-  double weightKg; // For recommended intake calculation
+  final double weightKg; // For recommended intake calculation
 
-  UserPreferences({
+  const UserPreferences({
     required this.dailyGoalMl,
     required this.unit,
     required this.notificationIntervals,
     required this.darkModeEnabled,
     required this.weightKg,
   });
+
+  UserPreferences copyWith({
+    double? dailyGoalMl,
+    String? unit,
+    List<int>? notificationIntervals,
+    bool? darkModeEnabled,
+    double? weightKg,
+  }) {
+    return UserPreferences(
+      dailyGoalMl: dailyGoalMl ?? this.dailyGoalMl,
+      unit: unit ?? this.unit,
+      notificationIntervals:
+          notificationIntervals ?? this.notificationIntervals,
+      darkModeEnabled: darkModeEnabled ?? this.darkModeEnabled,
+      weightKg: weightKg ?? this.weightKg,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+    dailyGoalMl,
+    unit,
+    notificationIntervals,
+    darkModeEnabled,
+    weightKg,
+  ];
 }

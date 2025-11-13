@@ -13,7 +13,7 @@ class UserPreferencesRepositoryImpl implements IUserPreferencesRepository {
   }
 
   @override
-  Future<UserPreferences?> getUserPreferences() async {
+  Future<UserPreferences?> loadUserPreferences() async {
     return _userPreferencesBox.get('user_preferences');
   }
 }

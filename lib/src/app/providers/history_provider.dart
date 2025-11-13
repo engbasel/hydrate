@@ -1,17 +1,53 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hydrate/src/app/providers/repository_providers.dart';
 import 'package:hydrate/src/domain/models/daily_summary.dart';
 import 'package:hydrate/src/domain/repositories/water_repository.dart';
 
-class HistoryNotifier extends StateNotifier<List<DailySummary>> {
-  final IWaterRepository _waterRepository;
+enum DateRange { daily, weekly, monthly }
 
-  HistoryNotifier(this._waterRepository) : super(const []);
+class HistoryState {
+  final List<DailySummary> history;
+  final bool isLoading;
+  final DateRange dateRange;
 
-  Future<void> loadHistory() async {
-    // Logic to load history
-  }
+  HistoryState({
+    required this.history,
+    this.isLoading = false,
+    this.dateRange = DateRange.daily,
+  });
 
-  Future<void> addDailySummary(DailySummary summary) async {
-    // Logic to add daily summary
+  HistoryState copyWith({
+    List<DailySummary>? history,
+    bool? isLoading,
+    DateRange? dateRange,
+  }) {
+    return HistoryState(
+      history: history ?? this.history,
+      isLoading: isLoading ?? this.isLoading,
+      dateRange: dateRange ?? this.dateRange,
+    );
   }
 }
+
+class HistoryNotifier extends StateNotifier<HistoryState> {
+  final IWaterRepository _waterRepository;
+
+  HistoryNotifier(this._waterRepository) : super(HistoryState(history: [])) {
+    loadHistory();
+  }
+
+  Future<void> loadHistory() async {
+    state = state.copyWith(isLoading: true);
+    final history = await _waterRepository.getWaterIntakeHistory();
+    state = state.copyWith(history: history, isLoading: false);
+  }
+
+  void setDateRange(DateRange dateRange) {
+    state = state.copyWith(dateRange: dateRange);
+    loadHistory();
+  }
+}
+
+final historyProvider = StateNotifierProvider<HistoryNotifier, HistoryState>(
+  (ref) => HistoryNotifier(ref.watch(waterRepositoryProvider)),
+);

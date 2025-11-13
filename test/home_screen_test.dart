@@ -11,9 +11,13 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'home_screen_test.mocks.dart';
+import 'test_helper.dart';
 
 @GenerateMocks([IWaterRepository])
 void main() {
+  setUpAll(() async {
+    await initHive();
+  });
   group('HomeScreen', () {
     testWidgets(
       'displays WaterProgressIndicator, CurrentIntakeDisplay, and QuickAddButtons',
@@ -30,7 +34,7 @@ void main() {
 
     testWidgets('quick add buttons add water', (tester) async {
       final mockWaterRepository = MockIWaterRepository();
-      when(mockWaterRepository.saveWaterLog(any)).thenAnswer((_) async => {});
+      when(mockWaterRepository.addWaterLog(any)).thenAnswer((_) async => {});
 
       await tester.pumpWidget(
         ProviderScope(

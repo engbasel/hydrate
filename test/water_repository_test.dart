@@ -6,6 +6,7 @@ import 'package:hydrate/src/domain/models/water_log.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import 'test_helper.dart';
 import 'water_repository_test.mocks.dart';
 
 @GenerateMocks([Box])
@@ -14,18 +15,19 @@ void main() {
   late MockBox<WaterLog> mockWaterLogBox;
   late MockBox<DailySummary> mockDailySummaryBox;
 
-  setUp(() {
+  setUp(() async {
+    await initHive();
     mockWaterLogBox = MockBox<WaterLog>();
     mockDailySummaryBox = MockBox<DailySummary>();
     waterRepository = WaterRepositoryImpl(mockWaterLogBox, mockDailySummaryBox);
   });
 
   group('WaterRepository', () {
-    test('saveWaterLog should add a log to the box', () async {
+    test('addWaterLog should add a log to the box', () async {
       final waterLog = WaterLog(timestamp: DateTime.now(), amountMl: 250);
       when(mockWaterLogBox.add(any)).thenAnswer((_) async => 0);
 
-      await waterRepository.saveWaterLog(waterLog);
+      await waterRepository.addWaterLog(waterLog);
 
       verify(mockWaterLogBox.add(waterLog)).called(1);
     });
@@ -52,11 +54,11 @@ void main() {
       },
     );
 
-    test('saveDailySummary should put a summary in the box', () async {
+    test('addDailySummary should put a summary in the box', () async {
       final summary = DailySummary(date: DateTime.now(), totalIntakeMl: 1500);
       when(mockDailySummaryBox.put(any, any)).thenAnswer((_) async => {});
 
-      await waterRepository.saveDailySummary(summary);
+      await waterRepository.addDailySummary(summary);
 
       verify(
         mockDailySummaryBox.put(summary.date.toIso8601String(), summary),
@@ -76,7 +78,7 @@ void main() {
       },
     );
 
-    test('getAllDailySummaries should return all summaries', () async {
+    test('getWaterIntakeHistory should return all summaries', () async {
       final summaries = [
         DailySummary(date: DateTime.now(), totalIntakeMl: 1500),
         DailySummary(
@@ -86,7 +88,7 @@ void main() {
       ];
       when(mockDailySummaryBox.values).thenReturn(summaries);
 
-      final result = await waterRepository.getAllDailySummaries();
+      final result = await waterRepository.getWaterIntakeHistory();
 
       expect(result, summaries);
     });

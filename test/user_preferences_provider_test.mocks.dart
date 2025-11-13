@@ -42,9 +42,9 @@ class MockIUserPreferencesRepository extends _i1.Mock
           as _i3.Future<void>);
 
   @override
-  _i3.Future<_i4.UserPreferences?> getUserPreferences() =>
+  _i3.Future<_i4.UserPreferences?> loadUserPreferences() =>
       (super.noSuchMethod(
-            Invocation.method(#getUserPreferences, []),
+            Invocation.method(#loadUserPreferences, []),
             returnValue: _i3.Future<_i4.UserPreferences?>.value(),
           )
           as _i3.Future<_i4.UserPreferences?>);

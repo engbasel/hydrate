@@ -10,7 +10,7 @@ class WaterRepositoryImpl implements IWaterRepository {
   WaterRepositoryImpl(this._waterLogBox, this._dailySummaryBox);
 
   @override
-  Future<void> saveWaterLog(WaterLog log) async {
+  Future<void> addWaterLog(WaterLog log) async {
     await _waterLogBox.add(log);
   }
 
@@ -27,7 +27,7 @@ class WaterRepositoryImpl implements IWaterRepository {
   }
 
   @override
-  Future<void> saveDailySummary(DailySummary summary) async {
+  Future<void> addDailySummary(DailySummary summary) async {
     await _dailySummaryBox.put(summary.date.toIso8601String(), summary);
   }
 
@@ -37,7 +37,7 @@ class WaterRepositoryImpl implements IWaterRepository {
   }
 
   @override
-  Future<List<DailySummary>> getAllDailySummaries() async {
+  Future<List<DailySummary>> getWaterIntakeHistory() async {
     return _dailySummaryBox.values.toList();
   }
 }

@@ -17,26 +17,34 @@ class UserPreferencesNotifier extends StateNotifier<UserPreferences> {
       );
 
   Future<void> loadUserPreferences() async {
-    // Logic to load user preferences
+    final preferences = await _userPreferencesRepository.loadUserPreferences();
+    if (preferences != null) {
+      state = preferences;
+    }
   }
 
   Future<void> updateGoal(double newGoal) async {
-    // Logic to update goal
+    state = state.copyWith(dailyGoalMl: newGoal);
+    await _userPreferencesRepository.saveUserPreferences(state);
   }
 
   Future<void> updateUnit(String newUnit) async {
-    // Logic to update unit
+    state = state.copyWith(unit: newUnit);
+    await _userPreferencesRepository.saveUserPreferences(state);
   }
 
   Future<void> toggleDarkMode() async {
-    // Logic to toggle dark mode
+    state = state.copyWith(darkModeEnabled: !state.darkModeEnabled);
+    await _userPreferencesRepository.saveUserPreferences(state);
   }
 
   Future<void> updateNotificationIntervals(List<int> newIntervals) async {
-    // Logic to update notification intervals
+    state = state.copyWith(notificationIntervals: newIntervals);
+    await _userPreferencesRepository.saveUserPreferences(state);
   }
 
   Future<void> updateWeight(double newWeight) async {
-    // Logic to update weight
+    state = state.copyWith(weightKg: newWeight);
+    await _userPreferencesRepository.saveUserPreferences(state);
   }
 }

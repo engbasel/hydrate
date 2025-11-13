@@ -32,9 +32,9 @@ class MockIWaterRepository extends _i1.Mock implements _i2.IWaterRepository {
   }
 
   @override
-  _i3.Future<void> saveWaterLog(_i4.WaterLog? log) =>
+  _i3.Future<void> addWaterLog(_i4.WaterLog? log) =>
       (super.noSuchMethod(
-            Invocation.method(#saveWaterLog, [log]),
+            Invocation.method(#addWaterLog, [log]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
@@ -49,9 +49,9 @@ class MockIWaterRepository extends _i1.Mock implements _i2.IWaterRepository {
           as _i3.Future<List<_i4.WaterLog>>);
 
   @override
-  _i3.Future<void> saveDailySummary(_i5.DailySummary? summary) =>
+  _i3.Future<void> addDailySummary(_i5.DailySummary? summary) =>
       (super.noSuchMethod(
-            Invocation.method(#saveDailySummary, [summary]),
+            Invocation.method(#addDailySummary, [summary]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
@@ -66,9 +66,9 @@ class MockIWaterRepository extends _i1.Mock implements _i2.IWaterRepository {
           as _i3.Future<_i5.DailySummary?>);
 
   @override
-  _i3.Future<List<_i5.DailySummary>> getAllDailySummaries() =>
+  _i3.Future<List<_i5.DailySummary>> getWaterIntakeHistory() =>
       (super.noSuchMethod(
-            Invocation.method(#getAllDailySummaries, []),
+            Invocation.method(#getWaterIntakeHistory, []),
             returnValue: _i3.Future<List<_i5.DailySummary>>.value(
               <_i5.DailySummary>[],
             ),

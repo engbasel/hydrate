@@ -1,51 +1,11 @@
-# Hydrate App Implementation Plan
-
-This document outlines the phased implementation plan for the Hydrate app.
-
-## Journal
-
-**2025-11-13**
-*   **Phase 1:** Project setup and initialization.
-*   **Learnings:**
-    *   The `create_project` tool requires the `root` parameter to be a `file://` URI.
-    *   The project was not a git repository, so I had to initialize it with `git init` before committing.
-*   **Surprises:**
-    *   The `launch_app` tool is not available. I will proceed without it.
-*   **Deviations:**
-    *   Skipped running the app with `launch_app` as the tool is not available.
-
-**2025-11-13**
-*   **Phase 2:** Core Data and Domain Layer.
-*   **Learnings:**
-    *   Repository methods that return a `Future` must be `await`ed in tests.
-*   **Surprises:**
-    *   None.
-*   **Deviations:**
-    *   None.
-
-**2025-11-13**
-*   **Phase 3:** State Management and Application Layer.
-*   **Learnings:**
-    *   `StateNotifier` is part of the `state_notifier` package and needs to be imported explicitly if not done automatically by the IDE.
-    *   The `onDidReceiveLocalNotification` parameter for `DarwinInitializationSettings` is deprecated or has been removed in the version of `flutter_local_notifications` I am using.
-*   **Surprises:**
-    *   The analyzer gave a misleading error message about the `super` constructor of `StateNotifier`.
-*   **Deviations:**
-    *   Removed the `onDidReceiveLocalNotification` parameter from the `NotificationService`.
-
-**2025-11-13**
-*   **Phase 4:** Home Screen UI.
-*   **Learnings:**
-    *   When testing widgets that depend on Riverpod providers, the providers need to be overridden with mock implementations to prevent `UnimplementedError`s.
-*   **Surprises:**
-    *   None.
-*   **Deviations:**
-    *   None.
-
 **2025-11-13**
 *   **Phase 5:** History Screen UI.
 *   **Learnings:**
-    *   None.
+    *   `FutureProvider` is needed when dealing with asynchronous operations in providers.
+    *   `Equatable` package is useful for comparing objects in tests.
+    *   Mock files need to be regenerated after deleting a model.
+    *   Hive needs to be initialized in tests that use it.
+    *   The `UserPreferences` class needs to be immutable when extending `Equatable`.
 *   **Surprises:**
     *   None.
 *   **Deviations:**
@@ -115,9 +75,9 @@ After this phase, I will perform the post-phase checks as outlined in Phase 1.
 ## Phase 5: History Screen UI
 
 - [x] Create the `HistoryScreen` widget.
-- [ ] Implement the `DailyChart`, `WeeklyChart`, and `MonthlyChart` widgets using `fl_chart`.
-- [ ] Implement a date range selector.
-- [ ] Connect the UI to the `HistoryNotifier` to display historical data.
+- [x] Implement the `DailyChart`, `WeeklyChart`, and `MonthlyChart` widgets using `fl_chart`.
+- [x] Implement a date range selector.
+- [x] Connect the UI to the `HistoryNotifier` to display historical data.
 
 After this phase, I will perform the post-phase checks as outlined in Phase 1.
 
