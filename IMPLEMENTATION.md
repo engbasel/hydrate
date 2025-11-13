@@ -42,6 +42,15 @@ This document outlines the phased implementation plan for the Hydrate app.
 *   **Deviations:**
     *   None.
 
+**2025-11-13**
+*   **Phase 5:** History Screen UI.
+*   **Learnings:**
+    *   None.
+*   **Surprises:**
+    *   None.
+*   **Deviations:**
+    *   None.
+
 ---
 
 ## Phase 1: Project Setup and Initialization
@@ -105,7 +114,7 @@ After this phase, I will perform the post-phase checks as outlined in Phase 1.
 
 ## Phase 5: History Screen UI
 
-- [ ] Create the `HistoryScreen` widget.
+- [x] Create the `HistoryScreen` widget.
 - [ ] Implement the `DailyChart`, `WeeklyChart`, and `MonthlyChart` widgets using `fl_chart`.
 - [ ] Implement a date range selector.
 - [ ] Connect the UI to the `HistoryNotifier` to display historical data.
