@@ -1,11 +1,7 @@
 **2025-11-13**
-*   **Phase 5:** History Screen UI.
+*   **Phase 6:** Settings Screen UI.
 *   **Learnings:**
-    *   `FutureProvider` is needed when dealing with asynchronous operations in providers.
-    *   `Equatable` package is useful for comparing objects in tests.
-    *   Mock files need to be regenerated after deleting a model.
-    *   Hive needs to be initialized in tests that use it.
-    *   The `UserPreferences` class needs to be immutable when extending `Equatable`.
+    *   None.
 *   **Surprises:**
     *   None.
 *   **Deviations:**
