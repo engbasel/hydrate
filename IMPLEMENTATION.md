@@ -4,18 +4,35 @@ This document outlines the phased implementation plan for the Hydrate app.
 
 ## Journal
 
-*This section will be updated after each phase to log actions taken, things learned, surprises, and deviations from the plan.*
+**2025-11-13**
+*   **Phase 1:** Project setup and initialization.
+*   **Learnings:**
+    *   The `create_project` tool requires the `root` parameter to be a `file://` URI.
+    *   The project was not a git repository, so I had to initialize it with `git init` before committing.
+*   **Surprises:**
+    *   The `launch_app` tool is not available. I will proceed without it.
+*   **Deviations:**
+    *   Skipped running the app with `launch_app` as the tool is not available.
+
+**2025-11-13**
+*   **Phase 2:** Core Data and Domain Layer.
+*   **Learnings:**
+    *   Repository methods that return a `Future` must be `await`ed in tests.
+*   **Surprises:**
+    *   None.
+*   **Deviations:**
+    *   None.
 
 ---
 
 ## Phase 1: Project Setup and Initialization
 
-- [ ] Create a Flutter package in the current directory (`/home/duhhh/Documents/GitHub/hydrate`).
-- [ ] Remove any boilerplate in the new package that will be replaced, including the `test` directory.
-- [ ] Update the `description` of the package in `pubspec.yaml` and set the version to `0.1.0`.
-- [ ] Update `README.md` to include a short placeholder description of the package.
-- [ ] Create `CHANGELOG.md` with the initial version `0.1.0`.
-- [ ] Commit this empty version of the package to the current branch.
+- [x] Create a Flutter package in the current directory (`/home/duhhh/Documents/GitHub/hydrate`).
+- [x] Remove any boilerplate in the new package that will be replaced, including the `test` directory.
+- [x] Update the `description` of the package in `pubspec.yaml` and set the version to `0.1.0`.
+- [x] Update `README.md` to include a short placeholder description of the package.
+- [x] Create `CHANGELOG.md` with the initial version `0.1.0`.
+- [x] Commit this empty version of the package to the current branch.
 - [ ] After committing the change, start running the app with the `launch_app` tool on the user's preferred device.
 
 After completing a task, if you added any TODOs to the code or didn't fully implement anything, make sure to add new tasks so that you can come back and complete them later.
@@ -34,14 +51,14 @@ After this phase, I will:
 
 ## Phase 2: Core Data and Domain Layer
 
-- [ ] Create the directory structure for the app (`lib/src`, `lib/src/features`, `lib/src/core`, etc.).
-- [ ] Define the data models in the domain layer: `WaterLog`, `UserPreferences`, `DailySummary`.
-- [ ] Add the necessary dependencies to `pubspec.yaml`: `flutter_riverpod`, `hive`, `hive_flutter`, `flutter_local_notifications`, `fl_chart`, `path_provider`.
-- [ ] Run `flutter pub get`.
-- [ ] Create the `HiveService` in the infrastructure layer to handle Hive initialization and box management.
-- [ ] Generate `TypeAdapter`s for the data models.
-- [ ] Define the repository interfaces in the domain layer (e.g., `IWaterRepository`, `IUserPreferencesRepository`).
-- [ ] Implement the repositories in the infrastructure layer using Hive.
+- [x] Create the directory structure for the app (`lib/src`, `lib/src/features`, `lib/src/core`, etc.).
+- [x] Define the data models in the domain layer: `WaterLog`, `UserPreferences`, `DailySummary`.
+- [x] Add the necessary dependencies to `pubspec.yaml`: `flutter_riverpod`, `hive`, `hive_flutter`, `flutter_local_notifications`, `fl_chart`, `path_provider`.
+- [x] Run `flutter pub get`.
+- [x] Create the `HiveService` in the infrastructure layer to handle Hive initialization and box management.
+- [x] Generate `TypeAdapter`s for the data models.
+- [x] Define the repository interfaces in the domain layer (e.g., `IWaterRepository`, `IUserPreferencesRepository`).
+- [x] Implement the repositories in the infrastructure layer using Hive.
 
 After this phase, I will perform the post-phase checks as outlined in Phase 1.
 
