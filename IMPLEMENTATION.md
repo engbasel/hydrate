@@ -23,6 +23,16 @@ This document outlines the phased implementation plan for the Hydrate app.
 *   **Deviations:**
     *   None.
 
+**2025-11-13**
+*   **Phase 3:** State Management and Application Layer.
+*   **Learnings:**
+    *   `StateNotifier` is part of the `state_notifier` package and needs to be imported explicitly if not done automatically by the IDE.
+    *   The `onDidReceiveLocalNotification` parameter for `DarwinInitializationSettings` is deprecated or has been removed in the version of `flutter_local_notifications` I am using.
+*   **Surprises:**
+    *   The analyzer gave a misleading error message about the `super` constructor of `StateNotifier`.
+*   **Deviations:**
+    *   Removed the `onDidReceiveLocalNotification` parameter from the `NotificationService`.
+
 ---
 
 ## Phase 1: Project Setup and Initialization
@@ -64,13 +74,13 @@ After this phase, I will perform the post-phase checks as outlined in Phase 1.
 
 ## Phase 3: State Management and Application Layer
 
-- [ ] Implement the Riverpod providers in the application layer:
+- [x] Implement the Riverpod providers in the application layer:
     - `WaterIntakeNotifier`
     - `UserPreferencesNotifier`
     - `HistoryNotifier`
-- [ ] Implement the `NotificationService` to wrap `flutter_local_notifications`.
-- [ ] Implement the logic for calculating recommended water intake.
-- [ ] Implement the logic for resetting the counter at midnight.
+- [x] Implement the `NotificationService` to wrap `flutter_local_notifications`.
+- [x] Implement the logic for calculating recommended water intake.
+- [x] Implement the logic for resetting the counter at midnight.
 
 After this phase, I will perform the post-phase checks as outlined in Phase 1.
 
