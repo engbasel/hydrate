@@ -1,6 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hydrate/src/domain/models/user_preferences.dart';
 import 'package:hydrate/src/domain/repositories/user_preferences_repository.dart';
-import 'package:state_notifier/state_notifier.dart';
 
 class UserPreferencesNotifier extends StateNotifier<UserPreferences> {
   final IUserPreferencesRepository _userPreferencesRepository;

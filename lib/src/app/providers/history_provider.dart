@@ -1,6 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hydrate/src/domain/models/daily_summary.dart';
 import 'package:hydrate/src/domain/repositories/water_repository.dart';
-import 'package:state_notifier/state_notifier.dart';
 
 class HistoryNotifier extends StateNotifier<List<DailySummary>> {
   final IWaterRepository _waterRepository;

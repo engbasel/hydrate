@@ -33,6 +33,15 @@ This document outlines the phased implementation plan for the Hydrate app.
 *   **Deviations:**
     *   Removed the `onDidReceiveLocalNotification` parameter from the `NotificationService`.
 
+**2025-11-13**
+*   **Phase 4:** Home Screen UI.
+*   **Learnings:**
+    *   When testing widgets that depend on Riverpod providers, the providers need to be overridden with mock implementations to prevent `UnimplementedError`s.
+*   **Surprises:**
+    *   None.
+*   **Deviations:**
+    *   None.
+
 ---
 
 ## Phase 1: Project Setup and Initialization
@@ -86,11 +95,11 @@ After this phase, I will perform the post-phase checks as outlined in Phase 1.
 
 ## Phase 4: Home Screen UI
 
-- [ ] Create the `HomeScreen` widget.
-- [ ] Implement the `WaterProgressIndicator` widget with animations.
-- [ ] Implement the `CurrentIntakeDisplay` widget.
-- [ ] Implement the `QuickAddButtons` widget.
-- [ ] Connect the UI to the `WaterIntakeNotifier` to display and update data.
+- [x] Create the `HomeScreen` widget.
+- [x] Implement the `WaterProgressIndicator` widget with animations.
+- [x] Implement the `CurrentIntakeDisplay` widget.
+- [x] Implement the `QuickAddButtons` widget.
+- [x] Connect the UI to the `WaterIntakeNotifier` to display and update data.
 
 After this phase, I will perform the post-phase checks as outlined in Phase 1.
 

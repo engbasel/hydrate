@@ -1,5 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hydrate/src/data/repositories/dummy_water_repository.dart';
 import 'package:hydrate/src/domain/repositories/water_repository.dart';
-import 'package:state_notifier/state_notifier.dart';
 
 class WaterIntakeState {
   final double currentIntake;
@@ -32,7 +33,8 @@ class WaterIntakeNotifier extends StateNotifier<WaterIntakeState> {
     : super(WaterIntakeState(currentIntake: 0, dailyGoal: 2000, unit: 'ml'));
 
   Future<void> addWater(double amount) async {
-    // Logic to add water and update state
+    state = state.copyWith(currentIntake: state.currentIntake + amount);
+    // TODO: Save water log to repository
   }
 
   Future<void> setGoal(double goal) async {
@@ -43,3 +45,9 @@ class WaterIntakeNotifier extends StateNotifier<WaterIntakeState> {
     // Logic to reset daily intake
   }
 }
+
+final waterIntakeNotifierProvider =
+    StateNotifierProvider<WaterIntakeNotifier, WaterIntakeState>((ref) {
+      // TODO: Provide actual WaterRepository implementation
+      return WaterIntakeNotifier(DummyWaterRepository());
+    });
