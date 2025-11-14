@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hydrate/src/app/providers/repository_providers.dart';
 import 'package:hydrate/src/app/providers/user_preferences_provider.dart';
 import 'package:hydrate/src/domain/models/water_log.dart';
+import 'package:hydrate/src/domain/models/daily_summary.dart';
 import 'package:hydrate/src/domain/repositories/water_repository.dart';
 import 'package:hydrate/src/data/repositories/dummy_water_repository.dart';
 
@@ -48,6 +49,9 @@ class WaterIntakeNotifier extends StateNotifier<WaterIntakeState> {
     final totalIntake = logs.fold<double>(0, (sum, log) => sum + log.amountMl);
     
     state = state.copyWith(currentIntake: totalIntake);
+    
+    // Ensure we have a daily summary for today
+    await _updateDailySummary();
   }
 
   void _syncWithUserPreferences() {
@@ -75,6 +79,9 @@ class WaterIntakeNotifier extends StateNotifier<WaterIntakeState> {
     await _waterRepository.addWaterLog(
       WaterLog(timestamp: DateTime.now(), amountMl: amountInMl),
     );
+    
+    // Update daily summary for today
+    await _updateDailySummary();
   }
 
   Future<void> setGoal(double goal) async {
@@ -88,6 +95,26 @@ class WaterIntakeNotifier extends StateNotifier<WaterIntakeState> {
     
     // Reset the in-memory state
     state = state.copyWith(currentIntake: 0);
+    
+    // Update daily summary to reflect the reset
+    await _updateDailySummary();
+  }
+
+  Future<void> _updateDailySummary() async {
+    final today = DateTime.now();
+    final normalizedDate = DateTime(today.year, today.month, today.day);
+    
+    // Get all logs for today and calculate total
+    final logs = await _waterRepository.getWaterLogsForDate(today);
+    final totalIntake = logs.fold<double>(0, (sum, log) => sum + log.amountMl);
+    
+    // Create or update daily summary
+    final summary = DailySummary(
+      date: normalizedDate,
+      totalIntakeMl: totalIntake,
+    );
+    
+    await _waterRepository.addDailySummary(summary);
   }
 
   double getCurrentIntakeInDisplayUnit() {

@@ -12,7 +12,7 @@ class UserPreferences extends Equatable {
   final String unit; // "ml" or "oz"
 
   @HiveField(2)
-  final List<int> notificationIntervals; // e.g., [9, 12, 15, 18] for 9 AM, 12 PM, etc.
+  final int notificationIntervalMinutes; // e.g., 120 for every 2 hours, 0 for disabled
 
   @HiveField(3)
   final bool darkModeEnabled;
@@ -23,7 +23,7 @@ class UserPreferences extends Equatable {
   const UserPreferences({
     required this.dailyGoalMl,
     required this.unit,
-    required this.notificationIntervals,
+    required this.notificationIntervalMinutes,
     required this.darkModeEnabled,
     required this.weightKg,
   });
@@ -31,15 +31,15 @@ class UserPreferences extends Equatable {
   UserPreferences copyWith({
     double? dailyGoalMl,
     String? unit,
-    List<int>? notificationIntervals,
+    int? notificationIntervalMinutes,
     bool? darkModeEnabled,
     double? weightKg,
   }) {
     return UserPreferences(
       dailyGoalMl: dailyGoalMl ?? this.dailyGoalMl,
       unit: unit ?? this.unit,
-      notificationIntervals:
-          notificationIntervals ?? this.notificationIntervals,
+      notificationIntervalMinutes:
+          notificationIntervalMinutes ?? this.notificationIntervalMinutes,
       darkModeEnabled: darkModeEnabled ?? this.darkModeEnabled,
       weightKg: weightKg ?? this.weightKg,
     );
@@ -49,7 +49,7 @@ class UserPreferences extends Equatable {
   List<Object?> get props => [
     dailyGoalMl,
     unit,
-    notificationIntervals,
+    notificationIntervalMinutes,
     darkModeEnabled,
     weightKg,
   ];

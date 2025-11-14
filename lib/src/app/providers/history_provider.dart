@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hydrate/src/app/providers/repository_providers.dart';
+import 'package:hydrate/src/app/providers/water_intake_provider.dart';
 import 'package:hydrate/src/domain/models/daily_summary.dart';
 import 'package:hydrate/src/domain/repositories/water_repository.dart';
 
@@ -31,9 +32,21 @@ class HistoryState {
 
 class HistoryNotifier extends StateNotifier<HistoryState> {
   final IWaterRepository _waterRepository;
+  final Ref _ref;
 
-  HistoryNotifier(this._waterRepository) : super(HistoryState(history: [])) {
+  HistoryNotifier(this._waterRepository, this._ref) : super(HistoryState(history: [])) {
     loadHistory();
+    
+    // Listen to water intake changes and refresh history
+    _ref.listen(waterIntakeNotifierProvider, (previous, next) {
+      // Only refresh if the intake actually changed
+      if (previous?.currentIntake != next.currentIntake) {
+        // Add a small delay to ensure daily summary is updated first
+        Future.delayed(const Duration(milliseconds: 100), () {
+          loadHistory();
+        });
+      }
+    });
   }
 
   Future<void> loadHistory() async {
@@ -49,5 +62,5 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
 }
 
 final historyProvider = StateNotifierProvider<HistoryNotifier, HistoryState>(
-  (ref) => HistoryNotifier(ref.watch(waterRepositoryProvider)),
+  (ref) => HistoryNotifier(ref.watch(waterRepositoryProvider), ref),
 );

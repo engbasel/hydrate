@@ -19,7 +19,7 @@ class AppInitializer {
     return _cachedPreferences ?? UserPreferences(
       dailyGoalMl: 2000,
       unit: 'ml',
-      notificationIntervals: [9, 12, 15, 18],
+      notificationIntervalMinutes: 120, // Default: every 2 hours
       darkModeEnabled: false,
       weightKg: 70,
     );

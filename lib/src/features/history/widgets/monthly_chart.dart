@@ -10,21 +10,50 @@ class MonthlyChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final historyState = ref.watch(historyProvider);
-    return AspectRatio(
-      aspectRatio: 1.70,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          right: 18,
-          left: 12,
-          top: 24,
-          bottom: 12,
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.1),
         ),
-        child: LineChart(mainData(historyState.history)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.calendar_month,
+                  color: colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Monthly Progress',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: LineChart(mainData(historyState.history, colorScheme)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  LineChartData mainData(List<DailySummary> history) {
+  LineChartData mainData(List<DailySummary> history, ColorScheme colorScheme) {
     return LineChartData(
       gridData: FlGridData(
         show: true,
@@ -32,10 +61,7 @@ class MonthlyChart extends ConsumerWidget {
         horizontalInterval: 1,
         verticalInterval: 1,
         getDrawingHorizontalLine: (value) {
-          return const FlLine(color: Color(0xff37434d), strokeWidth: 1);
-        },
-        getDrawingVerticalLine: (value) {
-          return const FlLine(color: Color(0xff37434d), strokeWidth: 1);
+          return FlLine(color: colorScheme.outline.withOpacity(0.2), strokeWidth: 1);
         },
       ),
       titlesData: FlTitlesData(

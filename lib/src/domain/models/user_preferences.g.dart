@@ -19,7 +19,7 @@ class UserPreferencesAdapter extends TypeAdapter<UserPreferences> {
     return UserPreferences(
       dailyGoalMl: fields[0] as double,
       unit: fields[1] as String,
-      notificationIntervals: (fields[2] as List).cast<int>(),
+      notificationIntervalMinutes: fields[2] as int,
       darkModeEnabled: fields[3] as bool,
       weightKg: fields[4] as double,
     );
@@ -34,7 +34,7 @@ class UserPreferencesAdapter extends TypeAdapter<UserPreferences> {
       ..writeByte(1)
       ..write(obj.unit)
       ..writeByte(2)
-      ..write(obj.notificationIntervals)
+      ..write(obj.notificationIntervalMinutes)
       ..writeByte(3)
       ..write(obj.darkModeEnabled)
       ..writeByte(4)

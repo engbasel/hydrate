@@ -10,43 +10,75 @@ class WeeklyChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final historyState = ref.watch(historyProvider);
-    return AspectRatio(
-      aspectRatio: 1.70,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          right: 18,
-          left: 12,
-          top: 24,
-          bottom: 12,
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.1),
         ),
-        child: BarChart(mainBarData(historyState.history)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.bar_chart,
+                  color: colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Weekly Overview',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: BarChart(mainBarData(historyState.history, colorScheme)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   BarChartGroupData makeGroupData(
     int x,
-    double y, {
+    double y,
+    ColorScheme colorScheme, {
     bool isTouched = false,
-    Color? barColor,
-    double width = 22,
+    double width = 24,
     List<int> showTooltips = const [],
   }) {
-    barColor ??= Colors.lightBlueAccent;
+    final isToday = x == DateTime.now().weekday - 1;
+    final barColor = isToday ? colorScheme.primary : colorScheme.secondary;
+    
     return BarChartGroupData(
       x: x,
       barRods: [
         BarChartRodData(
-          toY: isTouched ? y + 1 : y,
-          color: isTouched ? Colors.yellow : barColor,
+          toY: y,
+          color: isTouched ? colorScheme.primary.withOpacity(0.8) : barColor.withOpacity(0.8),
           width: width,
-          borderSide: isTouched
-              ? const BorderSide(color: Colors.yellow)
-              : const BorderSide(color: Colors.white, width: 0),
-          backDrawRodData: BackgroundBarChartRodData(
-            show: true,
-            toY: 20,
-            color: Colors.grey,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [
+              (isTouched ? colorScheme.primary : barColor).withOpacity(0.6),
+              (isTouched ? colorScheme.primary : barColor).withOpacity(0.9),
+            ],
           ),
         ),
       ],
@@ -54,119 +86,125 @@ class WeeklyChart extends ConsumerWidget {
     );
   }
 
-  List<BarChartGroupData> showingGroups(List<DailySummary> history) =>
-      List.generate(7, (i) {
-        final summary = history.firstWhere(
-          (element) => element.date.weekday == i + 1,
-          orElse: () => DailySummary(date: DateTime.now(), totalIntakeMl: 0),
-        );
-        return makeGroupData(i, summary.totalIntakeMl / 1000, isTouched: false);
-      });
+  List<BarChartGroupData> showingGroups(List<DailySummary> history, ColorScheme colorScheme) {
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    
+    return List.generate(7, (i) {
+      final date = startOfWeek.add(Duration(days: i));
+      final summary = history.where((element) =>
+          element.date.day == date.day &&
+          element.date.month == date.month &&
+          element.date.year == date.year).firstOrNull;
+      
+      final intake = (summary?.totalIntakeMl ?? 0) / 1000.0;
+      return makeGroupData(i, intake, colorScheme, isTouched: false);
+    });
+  }
 
-  BarChartData mainBarData(List<DailySummary> history) {
+  BarChartData mainBarData(List<DailySummary> history, ColorScheme colorScheme) {
+    final groups = showingGroups(history, colorScheme);
+    final maxY = groups.isEmpty ? 3.0 : groups.map((g) => g.barRods.first.toY).reduce((a, b) => a > b ? a : b);
+    final chartMaxY = (maxY * 1.2).clamp(2.0, 6.0);
+
     return BarChartData(
       barTouchData: BarTouchData(
         touchTooltipData: BarTouchTooltipData(
-          getTooltipColor: (group) => Colors.blueGrey,
-          tooltipHorizontalAlignment: FLHorizontalAlignment.right,
+          getTooltipColor: (group) => colorScheme.surfaceContainerHighest,
+          tooltipPadding: const EdgeInsets.all(8),
           getTooltipItem: (group, groupIndex, rod, rodIndex) {
-            String weekDay;
-            switch (group.x) {
-              case 0:
-                weekDay = 'Monday';
-                break;
-              case 1:
-                weekDay = 'Tuesday';
-                break;
-              case 2:
-                weekDay = 'Wednesday';
-                break;
-              case 3:
-                weekDay = 'Thursday';
-                break;
-              case 4:
-                weekDay = 'Friday';
-                break;
-              case 5:
-                weekDay = 'Saturday';
-                break;
-              case 6:
-                weekDay = 'Sunday';
-                break;
-              default:
-                throw Error();
-            }
+            final weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            final weekDay = weekDays[group.x.toInt()];
+            
             return BarTooltipItem(
-              '$weekDay\n',
-              const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
+              '$weekDay\n${rod.toY.toStringAsFixed(1)}L',
+              TextStyle(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
               ),
-              children: <TextSpan>[
-                TextSpan(
-                  text: (rod.toY - 1).toString(),
-                  style: const TextStyle(
-                    color: Colors.yellow,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
             );
           },
         ),
       ),
       titlesData: FlTitlesData(
         show: true,
-        rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            getTitlesWidget: (value, meta) => getTitles(value),
-            reservedSize: 38,
+            getTitlesWidget: (value, meta) => getTitles(value, colorScheme),
+            reservedSize: 32,
           ),
         ),
-        leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 40,
+            interval: chartMaxY / 4,
+            getTitlesWidget: (value, meta) {
+              if (value == 0) return const SizedBox.shrink();
+              return Text(
+                '${value.toStringAsFixed(1)}L',
+                style: TextStyle(
+                  color: colorScheme.onSurfaceVariant,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              );
+            },
+          ),
+        ),
       ),
       borderData: FlBorderData(show: false),
-      barGroups: showingGroups(history),
-      gridData: const FlGridData(show: false),
+      barGroups: groups,
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: false,
+        horizontalInterval: chartMaxY / 4,
+        getDrawingHorizontalLine: (value) {
+          return FlLine(
+            color: colorScheme.outline.withOpacity(0.2),
+            strokeWidth: 1,
+          );
+        },
+      ),
+      maxY: chartMaxY,
     );
   }
 
-  Widget getTitles(double value) {
-    const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 14);
-    Widget text;
-    switch (value.toInt()) {
-      case 0:
-        text = const Text('M', style: style);
-        break;
-      case 1:
-        text = const Text('T', style: style);
-        break;
-      case 2:
-        text = const Text('W', style: style);
-        break;
-      case 3:
-        text = const Text('T', style: style);
-        break;
-      case 4:
-        text = const Text('F', style: style);
-        break;
-      case 5:
-        text = const Text('S', style: style);
-        break;
-      case 6:
-        text = const Text('S', style: style);
-        break;
-      default:
-        text = const Text('');
-        break;
+  Widget getTitles(double value, ColorScheme colorScheme) {
+    final dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    final index = value.toInt();
+    
+    if (index < 0 || index >= dayLabels.length) {
+      return const SizedBox.shrink();
     }
-    return text;
+
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final dayDate = startOfWeek.add(Duration(days: index));
+    final isToday = dayDate.day == now.day &&
+        dayDate.month == now.month &&
+        dayDate.year == now.year;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: isToday
+          ? BoxDecoration(
+              color: colorScheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            )
+          : null,
+      child: Text(
+        dayLabels[index],
+        style: TextStyle(
+          fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+          fontSize: 12,
+          color: isToday ? colorScheme.primary : colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
   }
 }

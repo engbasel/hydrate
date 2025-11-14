@@ -7,7 +7,7 @@ class DummyUserPreferencesRepository implements IUserPreferencesRepository {
     return UserPreferences(
       dailyGoalMl: 2000,
       unit: 'ml',
-      notificationIntervals: [9, 12, 15, 18],
+      notificationIntervalMinutes: 120,
       darkModeEnabled: false,
       weightKg: 70,
     );

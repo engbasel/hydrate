@@ -7,13 +7,18 @@ import 'package:hydrate/src/features/settings/settings_screen.dart';
 import 'package:hydrate/src/data/hive_service.dart';
 import 'package:hydrate/src/app/providers/user_preferences_provider.dart';
 import 'package:hydrate/src/app/providers/repository_providers.dart';
+import 'package:hydrate/src/app/providers/notification_provider.dart';
 import 'package:hydrate/src/app/app_initializer.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );
+
+  // Initialize timezone data for notifications
+  tz.initializeTimeZones();
 
   final hiveService = HiveService(); // Create instance
   await hiveService.init(); // Initialize Hive
@@ -53,6 +58,9 @@ class _MainAppState extends ConsumerState<MainApp> {
   @override
   Widget build(BuildContext context) {
     final userPreferences = ref.watch(userPreferencesProvider);
+    
+    // Initialize notifications
+    ref.watch(notificationInitProvider);
     
     return MaterialApp(
       title: 'Hydrate',

@@ -52,6 +52,16 @@ class MockIWaterRepository extends _i1.Mock implements _i2.IWaterRepository {
       ) as _i3.Future<List<_i4.WaterLog>>);
 
   @override
+  _i3.Future<void> clearWaterLogsForDate(DateTime? date) => (super.noSuchMethod(
+        Invocation.method(
+          #clearWaterLogsForDate,
+          [date],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
   _i3.Future<void> addDailySummary(_i5.DailySummary? summary) =>
       (super.noSuchMethod(
         Invocation.method(

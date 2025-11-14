@@ -10,96 +10,150 @@ class DailyChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final historyState = ref.watch(historyProvider);
-    return AspectRatio(
-      aspectRatio: 1.70,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          right: 18,
-          left: 12,
-          top: 24,
-          bottom: 12,
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.1),
         ),
-        child: LineChart(mainData(historyState.history)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.timeline,
+                  color: colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Last 7 Days Trend',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: LineChart(mainData(historyState.history, colorScheme)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  LineChartData mainData(List<DailySummary> history) {
+  LineChartData mainData(List<DailySummary> history, ColorScheme colorScheme) {
+    // Get last 7 days of data
+    final now = DateTime.now();
+    final last7Days = List.generate(7, (index) => now.subtract(Duration(days: 6 - index)));
+    
+    final chartSpots = <FlSpot>[];
+    
+    for (int i = 0; i < last7Days.length; i++) {
+      final date = last7Days[i];
+      final dayData = history.where((summary) =>
+          summary.date.day == date.day &&
+          summary.date.month == date.month &&
+          summary.date.year == date.year).firstOrNull;
+      
+      // Only add spots for days that actually have data (including 0 if there's a daily summary)
+      if (dayData != null) {
+        final intake = dayData.totalIntakeMl / 1000.0;
+        chartSpots.add(FlSpot(i.toDouble(), intake));
+      }
+    }
+    
+    // If we have no data points, add a single point at 0 for today
+    if (chartSpots.isEmpty) {
+      chartSpots.add(FlSpot(6.0, 0.0)); // Today is index 6
+    }
+
+    final maxIntake = chartSpots.isEmpty ? 3.0 : chartSpots.map((e) => e.y).reduce((a, b) => a > b ? a : b);
+    final chartMaxY = (maxIntake * 1.2).clamp(2.0, 6.0);
+    final chartMinY = 0.0; // Ensure chart starts at 0
+
     return LineChartData(
       gridData: FlGridData(
         show: true,
-        drawVerticalLine: true,
-        horizontalInterval: 1,
-        verticalInterval: 1,
+        drawVerticalLine: false,
+        horizontalInterval: chartMaxY / 4,
         getDrawingHorizontalLine: (value) {
-          return const FlLine(color: Color(0xff37434d), strokeWidth: 1);
-        },
-        getDrawingVerticalLine: (value) {
-          return const FlLine(color: Color(0xff37434d), strokeWidth: 1);
+          // Don't show grid line at 0 to avoid clutter at bottom
+          if (value == 0) return FlLine(color: Colors.transparent);
+          return FlLine(
+            color: colorScheme.outline.withOpacity(0.2),
+            strokeWidth: 1,
+          );
         },
       ),
       titlesData: FlTitlesData(
         show: true,
-        rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
             reservedSize: 30,
             interval: 1,
-            getTitlesWidget: (value, meta) => bottomTitleWidgets(value),
+            getTitlesWidget: (value, meta) => bottomTitleWidgets(value, last7Days, colorScheme),
           ),
         ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: 1,
-            getTitlesWidget: (value, meta) => leftTitleWidgets(value),
+            interval: chartMaxY / 4,
+            getTitlesWidget: (value, meta) => leftTitleWidgets(value, colorScheme),
             reservedSize: 42,
           ),
         ),
       ),
-      borderData: FlBorderData(
-        show: true,
-        border: Border.all(color: const Color(0xff37434d)),
-      ),
+      borderData: FlBorderData(show: false),
       minX: 0,
-      maxX: 11,
-      minY: 0,
-      maxY: 6,
+      maxX: 6,
+      minY: chartMinY,
+      maxY: chartMaxY,
       lineBarsData: [
         LineChartBarData(
-          spots: history
-              .map((e) => FlSpot(e.date.day.toDouble(), e.totalIntakeMl / 1000))
-              .toList(),
+          spots: chartSpots,
           isCurved: true,
           gradient: LinearGradient(
             colors: [
-              ColorTween(
-                begin: Colors.cyan,
-                end: Colors.blue,
-              ).evaluate(const AlwaysStoppedAnimation(1.0))!,
-              ColorTween(
-                begin: Colors.cyan,
-                end: Colors.blue,
-              ).evaluate(const AlwaysStoppedAnimation(1.0))!,
+              colorScheme.primary,
+              colorScheme.secondary,
             ],
           ),
-          barWidth: 5,
+          barWidth: 3,
           isStrokeCapRound: true,
-          dotData: const FlDotData(show: false),
+          dotData: FlDotData(
+            show: true,
+            getDotPainter: (spot, percent, barData, index) {
+              return FlDotCirclePainter(
+                radius: 4,
+                color: colorScheme.primary,
+                strokeWidth: 2,
+                strokeColor: colorScheme.surface,
+              );
+            },
+          ),
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
               colors: [
-                ColorTween(begin: Colors.cyan, end: Colors.blue)
-                    .evaluate(const AlwaysStoppedAnimation(1.0))!
-                    .withAlpha((255 * 0.3).toInt()),
-                ColorTween(begin: Colors.cyan, end: Colors.blue)
-                    .evaluate(const AlwaysStoppedAnimation(1.0))!
-                    .withAlpha((255 * 0.0).toInt()),
+                colorScheme.primary.withOpacity(0.3),
+                colorScheme.primary.withOpacity(0.05),
               ],
             ),
           ),
@@ -108,44 +162,49 @@ class DailyChart extends ConsumerWidget {
     );
   }
 
-  Widget bottomTitleWidgets(double value) {
-    const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 16);
-    Widget text;
-    switch (value.toInt()) {
-      case 2:
-        text = const Text('MAR', style: style);
-        break;
-      case 5:
-        text = const Text('JUN', style: style);
-        break;
-      case 8:
-        text = const Text('SEP', style: style);
-        break;
-      default:
-        text = const Text('', style: style);
-        break;
+  Widget bottomTitleWidgets(double value, List<DateTime> last7Days, ColorScheme colorScheme) {
+    if (value < 0 || value >= last7Days.length) {
+      return const SizedBox.shrink();
     }
 
-    return text;
+    final date = last7Days[value.toInt()];
+    final isToday = date.day == DateTime.now().day &&
+        date.month == DateTime.now().month &&
+        date.year == DateTime.now().year;
+
+    final dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final dayName = dayNames[(date.weekday - 1) % 7];
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: isToday
+          ? BoxDecoration(
+              color: colorScheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            )
+          : null,
+      child: Text(
+        dayName,
+        style: TextStyle(
+          fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+          fontSize: 12,
+          color: isToday ? colorScheme.primary : colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
   }
 
-  Widget leftTitleWidgets(double value) {
-    const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 15);
-    String text;
-    switch (value.toInt()) {
-      case 1:
-        text = '1L';
-        break;
-      case 3:
-        text = '3L';
-        break;
-      case 5:
-        text = '5L';
-        break;
-      default:
-        return Container();
-    }
-
-    return Text(text, style: style, textAlign: TextAlign.left);
+  Widget leftTitleWidgets(double value, ColorScheme colorScheme) {
+    if (value == 0) return const SizedBox.shrink();
+    
+    return Text(
+      '${value.toStringAsFixed(1)}L',
+      style: TextStyle(
+        fontWeight: FontWeight.w500,
+        fontSize: 11,
+        color: colorScheme.onSurfaceVariant,
+      ),
+      textAlign: TextAlign.left,
+    );
   }
 }

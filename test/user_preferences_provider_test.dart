@@ -27,7 +27,7 @@ void main() {
       UserPreferences(
         dailyGoalMl: 2000,
         unit: 'ml',
-        notificationIntervals: [9, 12, 15, 18],
+        notificationIntervalMinutes: 120,
         darkModeEnabled: false,
         weightKg: 70,
       ),
@@ -38,7 +38,7 @@ void main() {
     final preferences = UserPreferences(
       dailyGoalMl: 2500,
       unit: 'oz',
-      notificationIntervals: [10, 14, 18],
+      notificationIntervalMinutes: 180,
       darkModeEnabled: true,
       weightKg: 80,
     );
