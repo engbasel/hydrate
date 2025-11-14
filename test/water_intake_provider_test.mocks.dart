@@ -5,9 +5,9 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i3;
 
-import 'package:hydrate/src/domain/models/daily_summary.dart' as _i5;
-import 'package:hydrate/src/domain/models/water_log.dart' as _i4;
-import 'package:hydrate/src/domain/repositories/water_repository.dart' as _i2;
+import 'package:hydrate/core/domain/models/daily_summary.dart' as _i5;
+import 'package:hydrate/core/domain/models/water_log.dart' as _i4;
+import 'package:hydrate/core/domain/repositories/water_repository.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -32,64 +32,55 @@ class MockIWaterRepository extends _i1.Mock implements _i2.IWaterRepository {
   }
 
   @override
-  _i3.Future<void> addWaterLog(_i4.WaterLog? log) => (super.noSuchMethod(
-        Invocation.method(
-          #addWaterLog,
-          [log],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> addWaterLog(_i4.WaterLog? log) =>
+      (super.noSuchMethod(
+            Invocation.method(#addWaterLog, [log]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
   _i3.Future<List<_i4.WaterLog>> getWaterLogsForDate(DateTime? date) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getWaterLogsForDate,
-          [date],
-        ),
-        returnValue: _i3.Future<List<_i4.WaterLog>>.value(<_i4.WaterLog>[]),
-      ) as _i3.Future<List<_i4.WaterLog>>);
+            Invocation.method(#getWaterLogsForDate, [date]),
+            returnValue: _i3.Future<List<_i4.WaterLog>>.value(<_i4.WaterLog>[]),
+          )
+          as _i3.Future<List<_i4.WaterLog>>);
 
   @override
-  _i3.Future<void> clearWaterLogsForDate(DateTime? date) => (super.noSuchMethod(
-        Invocation.method(
-          #clearWaterLogsForDate,
-          [date],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> clearWaterLogsForDate(DateTime? date) =>
+      (super.noSuchMethod(
+            Invocation.method(#clearWaterLogsForDate, [date]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
   _i3.Future<void> addDailySummary(_i5.DailySummary? summary) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #addDailySummary,
-          [summary],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+            Invocation.method(#addDailySummary, [summary]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
   _i3.Future<_i5.DailySummary?> getDailySummaryForDate(DateTime? date) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getDailySummaryForDate,
-          [date],
-        ),
-        returnValue: _i3.Future<_i5.DailySummary?>.value(),
-      ) as _i3.Future<_i5.DailySummary?>);
+            Invocation.method(#getDailySummaryForDate, [date]),
+            returnValue: _i3.Future<_i5.DailySummary?>.value(),
+          )
+          as _i3.Future<_i5.DailySummary?>);
 
   @override
   _i3.Future<List<_i5.DailySummary>> getWaterIntakeHistory() =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getWaterIntakeHistory,
-          [],
-        ),
-        returnValue:
-            _i3.Future<List<_i5.DailySummary>>.value(<_i5.DailySummary>[]),
-      ) as _i3.Future<List<_i5.DailySummary>>);
+            Invocation.method(#getWaterIntakeHistory, []),
+            returnValue: _i3.Future<List<_i5.DailySummary>>.value(
+              <_i5.DailySummary>[],
+            ),
+          )
+          as _i3.Future<List<_i5.DailySummary>>);
 }

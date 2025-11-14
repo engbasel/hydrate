@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hydrate/src/app/providers/water_intake_provider.dart';
-import 'package:hydrate/src/domain/repositories/water_repository.dart';
+import 'package:hydrate/core/providers/water_intake_provider.dart';
+import 'package:hydrate/core/domain/repositories/water_repository.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 

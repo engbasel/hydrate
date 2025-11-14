@@ -1,0 +1,20 @@
+import 'package:hydrate/core/domain/models/user_preferences.dart';
+import 'package:hydrate/core/domain/repositories/user_preferences_repository.dart';
+
+class DummyUserPreferencesRepository implements IUserPreferencesRepository {
+  @override
+  Future<UserPreferences?> loadUserPreferences() async {
+    return UserPreferences(
+      dailyGoalMl: 2000,
+      unit: 'ml',
+      notificationIntervalMinutes: 120,
+      darkModeEnabled: false,
+      weightKg: 70,
+    );
+  }
+
+  @override
+  Future<void> saveUserPreferences(UserPreferences preferences) async {
+    // Do nothing
+  }
+}

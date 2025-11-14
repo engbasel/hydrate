@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
-import 'package:hydrate/src/data/repositories/water_repository_impl.dart';
-import 'package:hydrate/src/domain/models/daily_summary.dart';
-import 'package:hydrate/src/domain/models/water_log.dart';
+import 'package:hydrate/core/data/repositories/water_repository_impl.dart';
+import 'package:hydrate/core/domain/models/daily_summary.dart';
+import 'package:hydrate/core/domain/models/water_log.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hydrate/src/app/providers/history_provider.dart';
-import 'package:hydrate/src/domain/models/daily_summary.dart';
-import 'package:hydrate/src/domain/repositories/water_repository.dart';
+import 'package:hydrate/core/providers/history_provider.dart';
+import 'package:hydrate/core/domain/models/daily_summary.dart';
+import 'package:hydrate/core/domain/repositories/water_repository.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 

@@ -1,0 +1,19 @@
+import 'package:hive/hive.dart';
+import 'package:hydrate/core/domain/models/user_preferences.dart';
+import 'package:hydrate/core/domain/repositories/user_preferences_repository.dart';
+
+class UserPreferencesRepositoryImpl implements IUserPreferencesRepository {
+  final Box<UserPreferences> _userPreferencesBox;
+
+  UserPreferencesRepositoryImpl(this._userPreferencesBox);
+
+  @override
+  Future<UserPreferences?> loadUserPreferences() async {
+    return _userPreferencesBox.get('user_preferences');
+  }
+
+  @override
+  Future<void> saveUserPreferences(UserPreferences preferences) async {
+    await _userPreferencesBox.put('user_preferences', preferences);
+  }
+}

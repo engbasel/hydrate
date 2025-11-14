@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hydrate/src/domain/use_cases/calculate_recommended_intake.dart';
+import 'package:hydrate/core/domain/use_cases/calculate_recommended_intake.dart';
 
 void main() {
   test('calculate recommended intake should return correct value', () {

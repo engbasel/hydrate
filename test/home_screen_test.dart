@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hydrate/src/app/providers/water_intake_provider.dart';
-import 'package:hydrate/src/domain/repositories/water_repository.dart';
-import 'package:hydrate/src/features/home/home_screen.dart';
-import 'package:hydrate/src/features/home/widgets/current_intake_display.dart';
-import 'package:hydrate/src/features/home/widgets/quick_add_buttons.dart';
-import 'package:hydrate/src/features/home/widgets/water_progress_indicator.dart';
+import 'package:hydrate/core/providers/water_intake_provider.dart';
+import 'package:hydrate/core/domain/repositories/water_repository.dart';
+import 'package:hydrate/features/home/home_screen.dart';
+import 'package:hydrate/features/home/widgets/current_intake_display.dart';
+import 'package:hydrate/features/home/widgets/quick_add_buttons.dart';
+import 'package:hydrate/features/home/widgets/water_progress_indicator.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 

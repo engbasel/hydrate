@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
-import 'package:hydrate/src/data/repositories/user_preferences_repository_impl.dart';
-import 'package:hydrate/src/domain/models/user_preferences.dart';
+import 'package:hydrate/core/data/repositories/user_preferences_repository_impl.dart';
+import 'package:hydrate/core/domain/models/user_preferences.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
