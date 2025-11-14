@@ -7,6 +7,7 @@ import 'package:hydrate/src/app/services/notification_service.dart';
 import 'package:hydrate/src/data/repositories/dummy_user_preferences_repository.dart';
 import 'package:hydrate/src/data/repositories/user_preferences_repository_impl.dart';
 import 'package:hydrate/src/app/app_initializer.dart';
+import 'package:hydrate/src/domain/use_cases/calculate_recommended_intake.dart';
 
 final userPreferencesProvider =
     StateNotifierProvider<UserPreferencesNotifier, UserPreferences>(
@@ -21,6 +22,7 @@ class UserPreferencesNotifier extends StateNotifier<UserPreferences> {
   final IUserPreferencesRepository _userPreferencesRepository;
   final Ref _ref;
   final NotificationService _notificationService;
+  final CalculateRecommendedIntake _calculateRecommendedIntake = CalculateRecommendedIntake();
 
   UserPreferencesNotifier(this._userPreferencesRepository, this._ref, this._notificationService)
     : super(AppInitializer.getInitialPreferences()) {
@@ -80,7 +82,27 @@ class UserPreferencesNotifier extends StateNotifier<UserPreferences> {
   }
 
   Future<void> updateWeight(double newWeight) async {
-    state = state.copyWith(weightKg: newWeight);
+    // Calculate new recommended intake based on weight
+    final recommendedIntake = _calculateRecommendedIntake(newWeight);
+    
+    state = state.copyWith(
+      weightKg: newWeight,
+      dailyGoalMl: recommendedIntake,
+    );
+    await _userPreferencesRepository.saveUserPreferences(state);
+  }
+
+  double getRecommendedIntakeForCurrentWeight() {
+    return _calculateRecommendedIntake(state.weightKg);
+  }
+
+  bool isUsingRecommendedGoal() {
+    final recommended = getRecommendedIntakeForCurrentWeight();
+    return (state.dailyGoalMl - recommended).abs() < 50; // Within 50ml tolerance
+  }
+
+  Future<void> updateDailyGoal(double newGoalMl) async {
+    state = state.copyWith(dailyGoalMl: newGoalMl);
     await _userPreferencesRepository.saveUserPreferences(state);
   }
 }

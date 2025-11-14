@@ -5,6 +5,7 @@ import 'package:hydrate/src/app/providers/user_preferences_provider.dart';
 import 'package:hydrate/src/features/home/widgets/current_intake_display.dart';
 import 'package:hydrate/src/features/home/widgets/quick_add_buttons.dart';
 import 'package:hydrate/src/features/home/widgets/water_progress_indicator.dart';
+import 'package:hydrate/src/domain/use_cases/calculate_recommended_intake.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -41,6 +42,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Column(
           children: [
             const SizedBox(height: 20),
+            
+            // Weight-based recommendation banner
+            _buildRecommendationBanner(context, ref),
+            
             WaterProgressIndicator(
               currentIntake: waterNotifier.getCurrentIntakeInDisplayUnit(),
               dailyGoal: waterNotifier.getDailyGoalInDisplayUnit(),
@@ -220,6 +225,123 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  Widget _buildRecommendationBanner(BuildContext context, WidgetRef ref) {
+    final userPrefs = ref.watch(userPreferencesProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+    final recommendedIntake = CalculateRecommendedIntake()(userPrefs.weightKg);
+    final isUsingRecommended = ref.read(userPreferencesProvider.notifier).isUsingRecommendedGoal();
+    
+    // Don't show banner if user is already using recommended intake
+    if (isUsingRecommended) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colorScheme.secondaryContainer.withOpacity(0.7),
+            colorScheme.tertiaryContainer.withOpacity(0.5),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colorScheme.secondary.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.lightbulb_outline,
+                  color: colorScheme.secondary,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Optimize Your Hydration',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      'Based on your weight (${userPrefs.weightKg.toInt()}kg)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: Icon(
+                  Icons.close,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Recommended daily intake: ${(recommendedIntake / 1000).toStringAsFixed(1)}L',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.tonal(
+              onPressed: () {
+                ref.read(userPreferencesProvider.notifier).updateDailyGoal(recommendedIntake);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Daily goal updated to ${(recommendedIntake / 1000).toStringAsFixed(1)}L based on your weight!',
+                    ),
+                    backgroundColor: colorScheme.secondary,
+                  ),
+                );
+              },
+              child: Text(
+                'Apply Recommended Goal',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
