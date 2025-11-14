@@ -14,6 +14,11 @@ class DummyWaterRepository implements IWaterRepository {
   }
 
   @override
+  Future<void> clearWaterLogsForDate(DateTime date) {
+    return Future.value();
+  }
+
+  @override
   Future<void> addDailySummary(DailySummary summary) {
     return Future.value();
   }

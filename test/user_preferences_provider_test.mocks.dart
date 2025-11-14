@@ -35,17 +35,20 @@ class MockIUserPreferencesRepository extends _i1.Mock
   @override
   _i3.Future<void> saveUserPreferences(_i4.UserPreferences? preferences) =>
       (super.noSuchMethod(
-            Invocation.method(#saveUserPreferences, [preferences]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+        Invocation.method(
+          #saveUserPreferences,
+          [preferences],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 
   @override
-  _i3.Future<_i4.UserPreferences?> loadUserPreferences() =>
-      (super.noSuchMethod(
-            Invocation.method(#loadUserPreferences, []),
-            returnValue: _i3.Future<_i4.UserPreferences?>.value(),
-          )
-          as _i3.Future<_i4.UserPreferences?>);
+  _i3.Future<_i4.UserPreferences?> loadUserPreferences() => (super.noSuchMethod(
+        Invocation.method(
+          #loadUserPreferences,
+          [],
+        ),
+        returnValue: _i3.Future<_i4.UserPreferences?>.value(),
+      ) as _i3.Future<_i4.UserPreferences?>);
 }

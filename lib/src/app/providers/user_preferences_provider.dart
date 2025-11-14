@@ -2,11 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hydrate/src/domain/models/user_preferences.dart';
 import 'package:hydrate/src/domain/repositories/user_preferences_repository.dart';
 import 'package:hydrate/src/app/providers/repository_providers.dart';
+import 'package:hydrate/src/data/repositories/dummy_user_preferences_repository.dart';
+import 'package:hydrate/src/data/repositories/user_preferences_repository_impl.dart';
 
 final userPreferencesProvider =
     StateNotifierProvider<UserPreferencesNotifier, UserPreferences>(
-      (ref) =>
-          UserPreferencesNotifier(ref.watch(userPreferencesRepositoryProvider)),
+      (ref) {
+        final repository = ref.watch(userPreferencesRepositoryProvider);
+        return UserPreferencesNotifier(repository);
+      },
     );
 
 class UserPreferencesNotifier extends StateNotifier<UserPreferences> {
@@ -21,7 +25,16 @@ class UserPreferencesNotifier extends StateNotifier<UserPreferences> {
           darkModeEnabled: false,
           weightKg: 70,
         ),
-      );
+      ) {
+    // Load saved preferences on initialization if we have a real repository
+    if (_userPreferencesRepository is! DummyUserPreferencesRepository) {
+      _loadInitialPreferences();
+    }
+  }
+
+  Future<void> _loadInitialPreferences() async {
+    await loadUserPreferences();
+  }
 
   Future<void> loadUserPreferences() async {
     final preferences = await _userPreferencesRepository.loadUserPreferences();

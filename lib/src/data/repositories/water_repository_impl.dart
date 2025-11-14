@@ -27,6 +27,27 @@ class WaterRepositoryImpl implements IWaterRepository {
   }
 
   @override
+  Future<void> clearWaterLogsForDate(DateTime date) async {
+    // Find keys of logs for the specified date
+    final keysToDelete = <dynamic>[];
+    
+    for (int i = 0; i < _waterLogBox.length; i++) {
+      final log = _waterLogBox.getAt(i);
+      if (log != null &&
+          log.timestamp.year == date.year &&
+          log.timestamp.month == date.month &&
+          log.timestamp.day == date.day) {
+        keysToDelete.add(i);
+      }
+    }
+    
+    // Delete logs in reverse order to maintain correct indices
+    for (int i = keysToDelete.length - 1; i >= 0; i--) {
+      await _waterLogBox.deleteAt(keysToDelete[i]);
+    }
+  }
+
+  @override
   Future<void> addDailySummary(DailySummary summary) async {
     await _dailySummaryBox.put(summary.date.toIso8601String(), summary);
   }

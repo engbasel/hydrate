@@ -8,15 +8,20 @@ class GoalSetting extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userPreferences = ref.watch(userPreferencesProvider);
+    
+    // Convert goal to display unit
+    final displayGoal = userPreferences.unit == 'oz' 
+        ? userPreferences.dailyGoalMl / 29.5735  // Convert ml to fl oz
+        : userPreferences.dailyGoalMl;
 
     return ListTile(
       title: const Text('Daily Goal'),
       subtitle: const Text('Set your daily water intake goal'),
       trailing: TextButton(
         onPressed: () {
-          _showGoalInputDialog(context, ref, userPreferences.dailyGoalMl);
+          _showGoalInputDialog(context, ref, userPreferences.dailyGoalMl, userPreferences.unit);
         },
-        child: Text('${userPreferences.dailyGoalMl.toInt()} ml'),
+        child: Text('${displayGoal.toStringAsFixed(userPreferences.unit == 'oz' ? 1 : 0)} ${userPreferences.unit}'),
       ),
     );
   }
@@ -24,10 +29,18 @@ class GoalSetting extends ConsumerWidget {
   void _showGoalInputDialog(
     BuildContext context,
     WidgetRef ref,
-    double currentGoal,
+    double currentGoalMl,
+    String unit,
   ) {
+    // Convert current goal to display unit for the input field
+    final displayGoal = unit == 'oz' 
+        ? currentGoalMl / 29.5735  // Convert ml to fl oz
+        : currentGoalMl;
+    
     final TextEditingController controller = TextEditingController(
-      text: currentGoal.toInt().toString(),
+      text: unit == 'oz' 
+          ? displayGoal.toStringAsFixed(1)
+          : displayGoal.toInt().toString(),
     );
 
     showDialog(
@@ -37,8 +50,11 @@ class GoalSetting extends ConsumerWidget {
           title: const Text('Set Daily Goal'),
           content: TextField(
             controller: controller,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Goal (ml)'),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: 'Goal ($unit)',
+              hintText: unit == 'oz' ? 'e.g., 67.6' : 'e.g., 2000',
+            ),
           ),
           actions: [
             TextButton(
@@ -49,11 +65,16 @@ class GoalSetting extends ConsumerWidget {
             ),
             TextButton(
               onPressed: () {
-                final newGoal = double.tryParse(controller.text);
-                if (newGoal != null && newGoal > 0) {
+                final inputValue = double.tryParse(controller.text);
+                if (inputValue != null && inputValue > 0) {
+                  // Convert input to ml if needed
+                  final goalInMl = unit == 'oz' 
+                      ? inputValue * 29.5735  // Convert fl oz to ml
+                      : inputValue;
+                  
                   ref
                       .read(userPreferencesProvider.notifier)
-                      .updateGoal(newGoal);
+                      .updateGoal(goalInMl);
                   Navigator.of(context).pop();
                 } else {
                   // Show error message

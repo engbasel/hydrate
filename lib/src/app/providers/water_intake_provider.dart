@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hydrate/src/app/providers/repository_providers.dart';
+import 'package:hydrate/src/app/providers/user_preferences_provider.dart';
 import 'package:hydrate/src/domain/models/water_log.dart';
 import 'package:hydrate/src/domain/repositories/water_repository.dart';
+import 'package:hydrate/src/data/repositories/dummy_water_repository.dart';
 
 class WaterIntakeState {
   final double currentIntake;
@@ -29,27 +31,75 @@ class WaterIntakeState {
 
 class WaterIntakeNotifier extends StateNotifier<WaterIntakeState> {
   final IWaterRepository _waterRepository;
+  final Ref _ref;
 
-  WaterIntakeNotifier(this._waterRepository)
-    : super(WaterIntakeState(currentIntake: 0, dailyGoal: 2000, unit: 'ml'));
+  WaterIntakeNotifier(this._waterRepository, this._ref)
+      : super(WaterIntakeState(currentIntake: 0, dailyGoal: 2000, unit: 'ml')) {
+    _syncWithUserPreferences();
+    // Load today's intake if we have a real repository
+    if (_waterRepository is! DummyWaterRepository) {
+      _loadTodaysIntake();
+    }
+  }
+
+  Future<void> _loadTodaysIntake() async {
+    final today = DateTime.now();
+    final logs = await _waterRepository.getWaterLogsForDate(today);
+    final totalIntake = logs.fold<double>(0, (sum, log) => sum + log.amountMl);
+    
+    state = state.copyWith(currentIntake: totalIntake);
+  }
+
+  void _syncWithUserPreferences() {
+    // Get initial preferences
+    final currentPrefs = _ref.read(userPreferencesProvider);
+    state = state.copyWith(
+      dailyGoal: currentPrefs.dailyGoalMl,
+      unit: currentPrefs.unit,
+    );
+    
+    // Listen for future changes
+    _ref.listen(userPreferencesProvider, (previous, next) {
+      state = state.copyWith(
+        dailyGoal: next.dailyGoalMl,
+        unit: next.unit,
+      );
+    });
+  }
 
   Future<void> addWater(double amount) async {
-    state = state.copyWith(currentIntake: state.currentIntake + amount);
+    // Convert to ml if needed
+    final amountInMl = state.unit == 'oz' ? amount * 29.5735 : amount;
+    
+    state = state.copyWith(currentIntake: state.currentIntake + amountInMl);
     await _waterRepository.addWaterLog(
-      WaterLog(timestamp: DateTime.now(), amountMl: amount),
+      WaterLog(timestamp: DateTime.now(), amountMl: amountInMl),
     );
   }
 
   Future<void> setGoal(double goal) async {
-    // Logic to set goal and update state
+    await _ref.read(userPreferencesProvider.notifier).updateGoal(goal);
   }
 
   Future<void> resetDailyIntake() async {
-    // Logic to reset daily intake
+    // Clear today's water logs from storage
+    final today = DateTime.now();
+    await _waterRepository.clearWaterLogsForDate(today);
+    
+    // Reset the in-memory state
+    state = state.copyWith(currentIntake: 0);
+  }
+
+  double getCurrentIntakeInDisplayUnit() {
+    return state.unit == 'oz' ? state.currentIntake / 29.5735 : state.currentIntake;
+  }
+
+  double getDailyGoalInDisplayUnit() {
+    return state.unit == 'oz' ? state.dailyGoal / 29.5735 : state.dailyGoal;
   }
 }
 
 final waterIntakeNotifierProvider =
     StateNotifierProvider<WaterIntakeNotifier, WaterIntakeState>((ref) {
-      return WaterIntakeNotifier(ref.watch(waterRepositoryProvider));
+      return WaterIntakeNotifier(ref.watch(waterRepositoryProvider), ref);
     });
