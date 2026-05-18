@@ -1,3 +1,6 @@
+# macOS metadata files (created on external drives)
+._*
+
 # Miscellaneous
 *.class
 *.log
