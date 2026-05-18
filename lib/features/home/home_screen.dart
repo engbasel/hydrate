@@ -132,7 +132,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ) {
     // Adjust colors for dark mode
     final adjustedColor = Theme.of(context).brightness == Brightness.dark
-        ? color.withOpacity(0.9)
+        ? color.withValues(alpha: 0.9)
         : color;
 
     return Column(
@@ -149,7 +149,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
       ],
@@ -168,7 +168,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             borderRadius: BorderRadius.circular(24),
           ),
           side: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
           ),
         ),
       ),
@@ -266,12 +266,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            colorScheme.secondaryContainer.withOpacity(0.7),
-            colorScheme.tertiaryContainer.withOpacity(0.5),
+            colorScheme.secondaryContainer.withValues(alpha: 0.7),
+            colorScheme.tertiaryContainer.withValues(alpha: 0.5),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,7 +281,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: colorScheme.secondary.withOpacity(0.2),
+                  color: colorScheme.secondary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(

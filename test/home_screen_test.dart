@@ -40,7 +40,7 @@ void main() {
         ProviderScope(
           overrides: [
             waterIntakeNotifierProvider.overrideWith(
-              (ref) => WaterIntakeNotifier(mockWaterRepository),
+              (ref) => WaterIntakeNotifier(mockWaterRepository, ref),
             ),
           ],
           child: const MaterialApp(home: HomeScreen()),

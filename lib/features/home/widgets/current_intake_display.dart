@@ -88,7 +88,7 @@ class CurrentIntakeDisplay extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+            color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
           ),
           textAlign: TextAlign.center,
         ),

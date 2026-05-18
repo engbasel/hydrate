@@ -16,7 +16,7 @@ class MonthlyChart extends ConsumerWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -25,11 +25,7 @@ class MonthlyChart extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.calendar_month,
-                  color: colorScheme.primary,
-                  size: 20,
-                ),
+                Icon(Icons.calendar_month, color: colorScheme.primary, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   'Monthly Progress',
@@ -52,86 +48,96 @@ class MonthlyChart extends ConsumerWidget {
   }
 
   LineChartData mainData(List<DailySummary> history, ColorScheme colorScheme) {
+    final now = DateTime.now();
+    final daysInMonth = now.day; // Only up to today
+
+    // Filter to current month and index by day
+    final thisMonthData = <int, double>{};
+    for (final entry in history) {
+      if (entry.date.year == now.year && entry.date.month == now.month) {
+        thisMonthData[entry.date.day] = entry.totalIntakeMl / 1000.0;
+      }
+    }
+
+    // Build one spot per day from day 1 to today (0 for missing days)
+    final chartSpots = <FlSpot>[
+      for (int day = 1; day <= daysInMonth; day++)
+        FlSpot(day.toDouble(), thisMonthData[day] ?? 0.0),
+    ];
+
+    final maxIntake = chartSpots.isEmpty
+        ? 3.0
+        : chartSpots.map((e) => e.y).reduce((a, b) => a > b ? a : b);
+    final chartMaxY = (maxIntake * 1.2).clamp(2.0, 6.0);
+
     return LineChartData(
       gridData: FlGridData(
         show: true,
-        drawVerticalLine: true,
-        horizontalInterval: 1,
-        verticalInterval: 1,
+        drawVerticalLine: false,
+        horizontalInterval: chartMaxY / 4,
         getDrawingHorizontalLine: (value) {
+          if (value == 0) return FlLine(color: Colors.transparent);
           return FlLine(
-            color: colorScheme.outline.withOpacity(0.2),
+            color: colorScheme.outline.withValues(alpha: 0.2),
             strokeWidth: 1,
           );
         },
       ),
       titlesData: FlTitlesData(
         show: true,
-        rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 30,
-            interval: 1,
-            getTitlesWidget: (value, meta) => bottomTitleWidgets(value),
+            reservedSize: 28,
+            interval: daysInMonth <= 15 ? 2 : 5,
+            getTitlesWidget: (value, meta) =>
+                _bottomTitle(value, colorScheme),
           ),
         ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: 1,
-            getTitlesWidget: (value, meta) => leftTitleWidgets(value),
+            interval: chartMaxY / 4,
+            getTitlesWidget: (value, meta) =>
+                _leftTitle(value, colorScheme),
             reservedSize: 42,
           ),
         ),
       ),
-      borderData: FlBorderData(
-        show: true,
-        border: Border.all(color: const Color(0xff37434d)),
-      ),
-      minX: 0,
-      maxX: 30, // Assuming 30 days in a month for simplicity
+      borderData: FlBorderData(show: false),
+      minX: 1,
+      maxX: daysInMonth.toDouble(),
       minY: 0,
-      maxY: 6,
+      maxY: chartMaxY,
       lineBarsData: [
         LineChartBarData(
-          spots: history.isEmpty
-              ? []
-              : history
-                    .map(
-                      (e) =>
-                          FlSpot(e.date.day.toDouble(), e.totalIntakeMl / 1000),
-                    )
-                    .toList(),
+          spots: chartSpots,
           isCurved: true,
           gradient: LinearGradient(
-            colors: [
-              ColorTween(
-                begin: Colors.cyan,
-                end: Colors.blue,
-              ).evaluate(const AlwaysStoppedAnimation(1.0))!,
-              ColorTween(
-                begin: Colors.cyan,
-                end: Colors.blue,
-              ).evaluate(const AlwaysStoppedAnimation(1.0))!,
-            ],
+            colors: [colorScheme.primary, colorScheme.secondary],
           ),
-          barWidth: 5,
+          barWidth: 3,
           isStrokeCapRound: true,
-          dotData: const FlDotData(show: false),
+          dotData: FlDotData(
+            show: daysInMonth <= 10,
+            getDotPainter: (spot, percent, barData, index) =>
+                FlDotCirclePainter(
+                  radius: 3,
+                  color: colorScheme.primary,
+                  strokeWidth: 1.5,
+                  strokeColor: colorScheme.surface,
+                ),
+          ),
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
               colors: [
-                ColorTween(begin: Colors.cyan, end: Colors.blue)
-                    .evaluate(const AlwaysStoppedAnimation(1.0))!
-                    .withAlpha((255 * 0.3).toInt()),
-                ColorTween(begin: Colors.cyan, end: Colors.blue)
-                    .evaluate(const AlwaysStoppedAnimation(1.0))!
-                    .withAlpha((255 * 0.0).toInt()),
+                colorScheme.primary.withValues(alpha: 0.3),
+                colorScheme.primary.withValues(alpha: 0.05),
               ],
             ),
           ),
@@ -140,44 +146,34 @@ class MonthlyChart extends ConsumerWidget {
     );
   }
 
-  Widget bottomTitleWidgets(double value) {
-    const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 16);
-    Widget text;
-    switch (value.toInt()) {
-      case 1:
-        text = const Text('Day 1', style: style);
-        break;
-      case 15:
-        text = const Text('Day 15', style: style);
-        break;
-      case 30:
-        text = const Text('Day 30', style: style);
-        break;
-      default:
-        text = const Text('', style: style);
-        break;
-    }
+  Widget _bottomTitle(double value, ColorScheme colorScheme) {
+    final day = value.toInt();
+    final now = DateTime.now();
+    final isToday = day == now.day;
 
-    return text;
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        '$day',
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+          color: isToday ? colorScheme.primary : colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
   }
 
-  Widget leftTitleWidgets(double value) {
-    const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 15);
-    String text;
-    switch (value.toInt()) {
-      case 1:
-        text = '1L';
-        break;
-      case 3:
-        text = '3L';
-        break;
-      case 5:
-        text = '5L';
-        break;
-      default:
-        return Container();
-    }
-
-    return Text(text, style: style, textAlign: TextAlign.left);
+  Widget _leftTitle(double value, ColorScheme colorScheme) {
+    if (value == 0) return const SizedBox.shrink();
+    return Text(
+      '${value.toStringAsFixed(1)}L',
+      style: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+        color: colorScheme.onSurfaceVariant,
+      ),
+      textAlign: TextAlign.left,
+    );
   }
 }

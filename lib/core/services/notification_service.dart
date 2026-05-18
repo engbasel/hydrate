@@ -6,7 +6,6 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:hydrate/core/services/background_notification_service.dart';
 
 class NotificationService {
-  static const String _notificationIdKey = 'water_reminder_notification_id';
   static const String _intervalKey = 'notification_interval_minutes';
   static const String _lastScheduledKey = 'last_scheduled_time';
   static const int _mainNotificationId = 1001; // Fixed ID for the repeating notification
@@ -35,7 +34,6 @@ class NotificationService {
       initializationSettings,
       onDidReceiveNotificationResponse: (details) async {
         // Handle notification tap - could open the app to a specific screen
-        print('Notification tapped: ${details.id}');
       },
     );
   }
@@ -53,54 +51,47 @@ class NotificationService {
     final currentInterval = await BackgroundNotificationService.getCurrentInterval();
     final isEnabled = await BackgroundNotificationService.areRemindersEnabled();
 
-    if (isEnabled && currentInterval == intervalMinutes) {
-      return;
-    }
-
-    await cancelAllNotifications();
-
     if (Platform.isIOS) {
-      // iOS: schedule individual local notifications for the next 48 hours
-      await _scheduleRepeatingNotification(intervalMinutes);
-      // Mark as enabled so the check above works on subsequent calls
-      await BackgroundNotificationService.markEnabled(intervalMinutes);
+      await _scheduleIosReminders(
+        intervalMinutes: intervalMinutes,
+        currentInterval: currentInterval,
+        isEnabled: isEnabled,
+      );
     } else {
-      // Android: use WorkManager so notifications survive app closure
+      // Android: WorkManager owns the scheduling — skip if nothing changed.
+      if (isEnabled && currentInterval == intervalMinutes) return;
+      await cancelAllNotifications();
       await BackgroundNotificationService.startWaterReminders(intervalMinutes);
+      await _storeScheduleInfo(intervalMinutes);
     }
-
-    await _storeScheduleInfo(intervalMinutes);
   }
 
-  /// Check if we need to reschedule the notification
-  Future<bool> _shouldRescheduleNotification(int intervalMinutes) async {
-    final prefs = await SharedPreferences.getInstance();
-    final storedInterval = prefs.getInt(_intervalKey);
-    final lastScheduled = prefs.getInt(_lastScheduledKey);
-    
-    // If interval changed, we need to reschedule
-    if (storedInterval != intervalMinutes) {
-      return true;
+  /// iOS-specific scheduling logic.
+  ///
+  /// Pre-schedules up to 50 individual notifications (~48 h window).
+  /// Reschedules automatically whenever:
+  ///   - the interval changes, OR
+  ///   - fewer than 10 notifications are still pending (i.e. window is nearly over).
+  Future<void> _scheduleIosReminders({
+    required int intervalMinutes,
+    required int currentInterval,
+    required bool isEnabled,
+  }) async {
+    final intervalChanged = !isEnabled || currentInterval != intervalMinutes;
+
+    if (!intervalChanged) {
+      // Check how many notifications are still waiting to fire.
+      final pending =
+          await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
+      // Keep at least 10 in the queue so there is no gap in reminders.
+      if (pending.length >= 10) return;
     }
-    
-    // If no notification is currently scheduled, we need to schedule
-    final pendingNotifications = await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
-    final hasMainNotification = pendingNotifications.any((notification) => notification.id == _mainNotificationId);
-    
-    if (!hasMainNotification) {
-      return true;
-    }
-    
-    // If it's been more than 2 hours since last schedule, reschedule to be safe
-    if (lastScheduled != null) {
-      final lastScheduledTime = DateTime.fromMillisecondsSinceEpoch(lastScheduled);
-      final timeSinceLastSchedule = DateTime.now().difference(lastScheduledTime);
-      if (timeSinceLastSchedule.inHours > 2) {
-        return true;
-      }
-    }
-    
-    return false;
+
+    // Cancel stale notifications then schedule a fresh 48-hour window.
+    await cancelAllNotifications();
+    await _scheduleRepeatingNotification(intervalMinutes);
+    await BackgroundNotificationService.markEnabled(intervalMinutes);
+    await _storeScheduleInfo(intervalMinutes);
   }
 
   /// Schedule multiple individual notifications instead of trying to use repeating
@@ -111,7 +102,6 @@ class NotificationService {
     const int hoursToSchedule = 48;
     final totalNotifications = (hoursToSchedule * 60) ~/ intervalMinutes;
     
-    print('Scheduling $totalNotifications notifications over $hoursToSchedule hours, every $intervalMinutes minutes');
     
     for (int i = 1; i <= totalNotifications && i <= 50; i++) { // Limit to 50 to avoid system limits
       final notificationTime = now.add(Duration(minutes: intervalMinutes * i));
@@ -161,7 +151,6 @@ class NotificationService {
       }
     }
     
-    print('Successfully scheduled ${totalNotifications > 50 ? 50 : totalNotifications} water reminders');
   }
 
 
@@ -225,25 +214,19 @@ class NotificationService {
       // Request exact alarm permission for Android 12+ (API 31+)
       final bool? exactAlarmPermission = await androidImplementation?.requestExactAlarmsPermission();
       
-      print('Android notification permission: $notificationPermission');
-      print('Android exact alarm permission: $exactAlarmPermission');
       
       return notificationPermission ?? false;
     } else if (Platform.isIOS) {
-      final IOSFlutterLocalNotificationsPlugin? iosImplementation =
-          _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>();
-              
-      final bool? grantedIOS = await iosImplementation?.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-        provisional: false,
-        critical: false,
-      );
-      
-      print('iOS notification permission: $grantedIOS');
-      
+      final bool? grantedIOS = await _flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+            provisional: false,
+            critical: false,
+          );
       return grantedIOS ?? false;
     }
     
@@ -277,29 +260,19 @@ class NotificationService {
 
   Future<void> cancelAllNotifications() async {
     await _flutterLocalNotificationsPlugin.cancelAll();
-    print('Cancelled all notifications');
   }
 
   /// Debug method to print all pending notifications
   Future<void> debugPendingNotifications() async {
     final pending = await getPendingNotifications();
     final now = DateTime.now();
-    print('=== PENDING NOTIFICATIONS DEBUG ===');
-    print('Current time: ${now.toString()}');
-    print('Total pending notifications: ${pending.length}');
     for (int i = 0; i < pending.length && i < 10; i++) {
       final notification = pending[i];
-      print('  ${i + 1}. ID: ${notification.id}');
-      print('     Title: ${notification.title}');
-      print('     Body: ${notification.body}');
       if (notification.payload != null) {
-        print('     Payload: ${notification.payload}');
       }
     }
     if (pending.length > 10) {
-      print('  ... and ${pending.length - 10} more notifications');
     }
-    print('=================================');
   }
 
   /// Show an immediate test notification to verify the system works
@@ -328,14 +301,11 @@ class NotificationService {
         ),
       ),
     );
-    print('Immediate test notification sent at ${DateTime.now()}');
     
     // Also test the background service
     try {
       await BackgroundNotificationService.showTestNotification();
-      print('Background service test notification also sent');
     } catch (e) {
-      print('Background service test failed: $e');
     }
   }
 }

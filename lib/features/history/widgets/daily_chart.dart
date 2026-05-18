@@ -16,7 +16,7 @@ class DailyChart extends ConsumerWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -88,7 +88,7 @@ class DailyChart extends ConsumerWidget {
           // Don't show grid line at 0 to avoid clutter at bottom
           if (value == 0) return FlLine(color: Colors.transparent);
           return FlLine(
-            color: colorScheme.outline.withOpacity(0.2),
+            color: colorScheme.outline.withValues(alpha: 0.2),
             strokeWidth: 1,
           );
         },
@@ -149,8 +149,8 @@ class DailyChart extends ConsumerWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                colorScheme.primary.withOpacity(0.3),
-                colorScheme.primary.withOpacity(0.05),
+                colorScheme.primary.withValues(alpha: 0.3),
+                colorScheme.primary.withValues(alpha: 0.05),
               ],
             ),
           ),
@@ -181,7 +181,7 @@ class DailyChart extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       decoration: isToday
           ? BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             )
           : null,

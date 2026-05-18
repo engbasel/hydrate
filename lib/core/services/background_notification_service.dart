@@ -1,4 +1,3 @@
-import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -51,7 +50,6 @@ class BackgroundNotificationService {
       await stopWaterReminders();
 
       if (intervalMinutes <= 0) {
-        print('Water reminders disabled (interval: $intervalMinutes)');
         return;
       }
 
@@ -62,11 +60,9 @@ class BackgroundNotificationService {
 
       if (intervalMinutes < 15) {
         // For intervals less than 15 minutes, use one-time tasks that reschedule themselves
-        print('⚡ Short interval detected ($intervalMinutes min). Using rapid rescheduling approach.');
         await _scheduleNextQuickReminder(intervalMinutes);
       } else {
         // For 15+ minutes, use WorkManager periodic tasks
-        print('🕒 Long interval detected ($intervalMinutes min). Using WorkManager periodic tasks.');
         await Workmanager().registerPeriodicTask(
           _taskTag,
           _taskName,
@@ -87,11 +83,8 @@ class BackgroundNotificationService {
         );
       }
 
-      print('✅ Started water reminders: every $intervalMinutes minutes');
-      print('📱 WorkManager task registered with ID: $_taskTag');
 
     } catch (e) {
-      print('❌ Failed to start water reminders: $e');
     }
   }
 
@@ -117,20 +110,19 @@ class BackgroundNotificationService {
       backoffPolicyDelay: Duration(seconds: 10),
     );
     
-    print('⚡ Quick reminder scheduled for $intervalMinutes minutes from now');
   }
 
-  /// Stop water reminders
+  /// Stop water reminders — cancels ALL WorkManager tasks for this app,
+  /// including chained one-off quick-reminder tasks whose unique IDs are
+  /// not predictable at call time.
   static Future<void> stopWaterReminders() async {
     try {
-      await Workmanager().cancelByUniqueName(_taskTag);
-      
+      await Workmanager().cancelAll();
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_enabledKey, false);
-      
-      print('🛑 Water reminders stopped');
     } catch (e) {
-      print('❌ Failed to stop water reminders: $e');
+      // Ignore — best effort cancellation
     }
   }
 
@@ -207,7 +199,6 @@ class BackgroundNotificationService {
       ),
     );
 
-    print('💧 Water notification shown: $title (${isDarkMode ? "Dark" : "Light"} theme)');
   }
 
   /// Check if dark mode is enabled
@@ -219,7 +210,6 @@ class BackgroundNotificationService {
       return prefs.getBool('dark_mode_enabled') ?? false;
     } catch (e) {
       // If there's an error, default to light mode
-      print('Failed to get dark mode preference: $e');
       return false;
     }
   }
@@ -261,7 +251,6 @@ class BackgroundNotificationService {
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    print('🔄 Background task started: $task');
     
     try {
       // Initialize notifications for background usage
@@ -286,22 +275,17 @@ void callbackDispatcher() {
             if (isEnabled && currentInterval == intervalMinutes && currentInterval > 0) {
               // Schedule the next reminder
               await BackgroundNotificationService._scheduleNextQuickReminder(intervalMinutes);
-              print('⚡ Next quick reminder scheduled for $intervalMinutes minutes');
             } else {
-              print('🛑 Quick reminders stopped or interval changed');
             }
           }
           
           break;
         default:
-          print('❌ Unknown background task: $task');
           return Future.value(false);
       }
 
-      print('✅ Background task completed successfully: $task');
       return Future.value(true);
     } catch (e) {
-      print('❌ Background task failed: $task - Error: $e');
       return Future.value(false);
     }
   });

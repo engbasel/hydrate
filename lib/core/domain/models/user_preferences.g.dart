@@ -17,11 +17,11 @@ class UserPreferencesAdapter extends TypeAdapter<UserPreferences> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UserPreferences(
-      dailyGoalMl: fields[0] as double,
-      unit: fields[1] as String,
-      notificationIntervalMinutes: fields[2] as int,
-      darkModeEnabled: fields[3] as bool,
-      weightKg: fields[4] as double,
+      dailyGoalMl: (fields[0] as double?) ?? 2000.0,
+      unit: (fields[1] as String?) ?? 'ml',
+      notificationIntervalMinutes: (fields[2] as int?) ?? 60,
+      darkModeEnabled: (fields[3] as bool?) ?? false,
+      weightKg: (fields[4] as double?) ?? 70.0,
     );
   }
 

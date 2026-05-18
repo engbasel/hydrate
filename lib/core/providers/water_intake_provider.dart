@@ -4,7 +4,6 @@ import 'package:hydrate/core/providers/user_preferences_provider.dart';
 import 'package:hydrate/core/domain/models/water_log.dart';
 import 'package:hydrate/core/domain/models/daily_summary.dart';
 import 'package:hydrate/core/domain/repositories/water_repository.dart';
-import 'package:hydrate/core/data/repositories/dummy_water_repository.dart';
 
 class WaterIntakeState {
   final double currentIntake;
@@ -37,10 +36,7 @@ class WaterIntakeNotifier extends StateNotifier<WaterIntakeState> {
   WaterIntakeNotifier(this._waterRepository, this._ref)
     : super(WaterIntakeState(currentIntake: 0, dailyGoal: 2000, unit: 'ml')) {
     _syncWithUserPreferences();
-    // Load today's intake if we have a real repository
-    if (_waterRepository is! DummyWaterRepository) {
-      _loadTodaysIntake();
-    }
+    _loadTodaysIntake();
   }
 
   Future<void> _loadTodaysIntake() async {

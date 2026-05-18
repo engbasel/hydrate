@@ -1,8 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:hydrate/core/data/hive_service.dart';
-import 'package:hydrate/core/data/repositories/dummy_user_preferences_repository.dart';
-import 'package:hydrate/core/data/repositories/dummy_water_repository.dart';
 import 'package:hydrate/core/data/repositories/user_preferences_repository_impl.dart';
 import 'package:hydrate/core/data/repositories/water_repository_impl.dart';
 import 'package:hydrate/core/domain/models/daily_summary.dart';
@@ -11,52 +8,17 @@ import 'package:hydrate/core/domain/models/water_log.dart';
 import 'package:hydrate/core/domain/repositories/user_preferences_repository.dart';
 import 'package:hydrate/core/domain/repositories/water_repository.dart';
 
-final hiveServiceProvider = Provider<HiveService>((ref) {
-  return HiveService();
-});
-
-final waterLogBoxProvider = FutureProvider<Box<WaterLog>>((ref) async {
-  final hiveService = ref.watch(hiveServiceProvider);
-  return await hiveService.openBox<WaterLog>('water_log');
-});
-
-final dailySummaryBoxProvider = FutureProvider<Box<DailySummary>>((ref) async {
-  final hiveService = ref.watch(hiveServiceProvider);
-  return await hiveService.openBox<DailySummary>('daily_summary');
-});
-
-final userPreferencesBoxProvider = FutureProvider<Box<UserPreferences>>((
-  ref,
-) async {
-  final hiveService = ref.watch(hiveServiceProvider);
-  return await hiveService.openBox<UserPreferences>('user_preferences');
-});
-
+// Boxes are opened synchronously in main.dart before runApp(), so Hive.box()
+// is always safe to call here without async.
 final waterRepositoryProvider = Provider<IWaterRepository>((ref) {
-  final waterLogBox = ref.watch(waterLogBoxProvider);
-  final dailySummaryBox = ref.watch(dailySummaryBoxProvider);
-
-  return waterLogBox.when(
-    data: (waterLogBoxData) => dailySummaryBox.when(
-      data: (dailySummaryBoxData) =>
-          WaterRepositoryImpl(waterLogBoxData, dailySummaryBoxData),
-      loading: () => DummyWaterRepository(),
-      error: (error, stackTrace) => DummyWaterRepository(),
-    ),
-    loading: () => DummyWaterRepository(),
-    error: (error, stackTrace) => DummyWaterRepository(),
+  return WaterRepositoryImpl(
+    Hive.box<WaterLog>('water_log'),
+    Hive.box<DailySummary>('daily_summary'),
   );
 });
 
-final userPreferencesRepositoryProvider = Provider<IUserPreferencesRepository>((
-  ref,
-) {
-  final userPreferencesBox = ref.watch(userPreferencesBoxProvider);
-
-  return userPreferencesBox.when(
-    data: (userPreferencesBoxData) =>
-        UserPreferencesRepositoryImpl(userPreferencesBoxData),
-    loading: () => DummyUserPreferencesRepository(),
-    error: (error, stackTrace) => DummyUserPreferencesRepository(),
+final userPreferencesRepositoryProvider = Provider<IUserPreferencesRepository>((ref) {
+  return UserPreferencesRepositoryImpl(
+    Hive.box<UserPreferences>('user_preferences'),
   );
 });

@@ -17,8 +17,8 @@ class WaterLogAdapter extends TypeAdapter<WaterLog> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return WaterLog(
-      timestamp: fields[0] as DateTime,
-      amountMl: fields[1] as double,
+      timestamp: (fields[0] as DateTime?) ?? DateTime.now(),
+      amountMl: (fields[1] as double?) ?? 0.0,
     );
   }
 

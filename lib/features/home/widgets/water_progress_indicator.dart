@@ -89,7 +89,7 @@ class _WaterProgressIndicatorState extends State<WaterProgressIndicator>
                   child: CustomPaint(
                     painter: CircularProgressPainter(
                       progress: _animation.value.clamp(0.0, 1.0),
-                      backgroundColor: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                      backgroundColor: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
                       progressColor: _getProgressColor(progress),
                       strokeWidth: 12,
                     ),
@@ -122,7 +122,7 @@ class _WaterProgressIndicatorState extends State<WaterProgressIndicator>
                             Text(
                               '${((1.0 - progress) * 100).toInt()}% to go',
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                               ),
                             ),
                         ],

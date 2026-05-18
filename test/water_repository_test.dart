@@ -60,9 +60,10 @@ void main() {
 
       await waterRepository.addDailySummary(summary);
 
-      verify(
-        mockDailySummaryBox.put(summary.date.toIso8601String(), summary),
-      ).called(1);
+      final date = summary.date;
+      final expectedKey =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      verify(mockDailySummaryBox.put(expectedKey, summary)).called(1);
     });
 
     test(

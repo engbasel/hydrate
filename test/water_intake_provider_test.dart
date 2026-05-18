@@ -1,4 +1,7 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hydrate/core/domain/models/water_log.dart';
+import 'package:hydrate/core/providers/repository_providers.dart';
 import 'package:hydrate/core/providers/water_intake_provider.dart';
 import 'package:hydrate/core/domain/repositories/water_repository.dart';
 import 'package:mockito/annotations.dart';
@@ -9,31 +12,40 @@ import 'water_intake_provider_test.mocks.dart';
 
 @GenerateMocks([IWaterRepository])
 void main() {
-  late WaterIntakeNotifier waterIntakeNotifier;
+  late ProviderContainer container;
   late MockIWaterRepository mockWaterRepository;
 
   setUp(() async {
     await initHive();
     mockWaterRepository = MockIWaterRepository();
-    waterIntakeNotifier = WaterIntakeNotifier(mockWaterRepository);
+    when(mockWaterRepository.getWaterLogsForDate(any)).thenAnswer((_) async => []);
+    when(mockWaterRepository.addDailySummary(any)).thenAnswer((_) async {});
+
+    container = ProviderContainer(overrides: [
+      waterRepositoryProvider.overrideWithValue(mockWaterRepository),
+    ]);
   });
+
+  tearDown(() => container.dispose());
 
   test('initial state is correct', () {
-    expect(waterIntakeNotifier.state.currentIntake, 0);
-    expect(waterIntakeNotifier.state.dailyGoal, 2000);
-    expect(waterIntakeNotifier.state.unit, 'ml');
+    final state = container.read(waterIntakeNotifierProvider);
+    expect(state.currentIntake, 0);
+    expect(state.dailyGoal, 2000);
+    expect(state.unit, 'ml');
   });
 
-  test(
-    'addWater should update the current intake and call the repository',
-    () async {
-      const amount = 250.0;
-      when(mockWaterRepository.addWaterLog(any)).thenAnswer((_) async => {});
+  test('addWater should update the current intake and call the repository', () async {
+    const amount = 250.0;
+    when(mockWaterRepository.addWaterLog(any)).thenAnswer((_) async {});
+    when(mockWaterRepository.getWaterLogsForDate(any)).thenAnswer(
+      (_) async => [WaterLog(timestamp: DateTime.now(), amountMl: amount)],
+    );
 
-      await waterIntakeNotifier.addWater(amount);
+    final notifier = container.read(waterIntakeNotifierProvider.notifier);
+    await notifier.addWater(amount);
 
-      expect(waterIntakeNotifier.state.currentIntake, amount);
-      verify(mockWaterRepository.addWaterLog(any)).called(1);
-    },
-  );
+    expect(container.read(waterIntakeNotifierProvider).currentIntake, amount);
+    verify(mockWaterRepository.addWaterLog(any)).called(1);
+  });
 }

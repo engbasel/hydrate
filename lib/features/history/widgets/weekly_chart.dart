@@ -16,7 +16,7 @@ class WeeklyChart extends ConsumerWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -64,16 +64,16 @@ class WeeklyChart extends ConsumerWidget {
         BarChartRodData(
           toY: y,
           color: isTouched
-              ? colorScheme.primary.withOpacity(0.8)
-              : barColor.withOpacity(0.8),
+              ? colorScheme.primary.withValues(alpha: 0.8)
+              : barColor.withValues(alpha: 0.8),
           width: width,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
           gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
             colors: [
-              (isTouched ? colorScheme.primary : barColor).withOpacity(0.6),
-              (isTouched ? colorScheme.primary : barColor).withOpacity(0.9),
+              (isTouched ? colorScheme.primary : barColor).withValues(alpha: 0.6),
+              (isTouched ? colorScheme.primary : barColor).withValues(alpha: 0.9),
             ],
           ),
         ),
@@ -185,7 +185,7 @@ class WeeklyChart extends ConsumerWidget {
         horizontalInterval: chartMaxY / 4,
         getDrawingHorizontalLine: (value) {
           return FlLine(
-            color: colorScheme.outline.withOpacity(0.2),
+            color: colorScheme.outline.withValues(alpha: 0.2),
             strokeWidth: 1,
           );
         },
@@ -214,7 +214,7 @@ class WeeklyChart extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       decoration: isToday
           ? BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             )
           : null,

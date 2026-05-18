@@ -214,7 +214,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,7 +224,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: color, size: 20),
@@ -254,7 +254,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
             subtitle,
             style: TextStyle(
               fontSize: 11,
-              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -294,14 +294,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                colorScheme.primaryContainer.withOpacity(0.3),
-                colorScheme.secondaryContainer.withOpacity(0.2),
+                colorScheme.primaryContainer.withValues(alpha: 0.3),
+                colorScheme.secondaryContainer.withValues(alpha: 0.2),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+            border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

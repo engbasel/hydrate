@@ -17,8 +17,8 @@ class DailySummaryAdapter extends TypeAdapter<DailySummary> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return DailySummary(
-      date: fields[0] as DateTime,
-      totalIntakeMl: fields[1] as double,
+      date: (fields[0] as DateTime?) ?? DateTime.now(),
+      totalIntakeMl: (fields[1] as double?) ?? 0.0,
     );
   }
 

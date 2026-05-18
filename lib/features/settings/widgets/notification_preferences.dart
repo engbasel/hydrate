@@ -75,7 +75,7 @@ class NotificationPreferences extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(20),
                           topRight: Radius.circular(20),
@@ -100,7 +100,7 @@ class NotificationPreferences extends ConsumerWidget {
                           Text(
                             'How often should I remind you to drink water?',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -262,7 +262,7 @@ class NotificationPreferences extends ConsumerWidget {
                               Navigator.of(context).pop();
                             },
                             style: TextButton.styleFrom(
-                              foregroundColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                              foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                             child: const Text('Cancel'),
                           ),
@@ -352,12 +352,12 @@ class NotificationPreferences extends ConsumerWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: isSelected 
-            ? iconColor.withOpacity(0.15)
-            : (value == 0 ? Colors.grey.withOpacity(0.05) : iconColor.withOpacity(0.06)),
+            ? iconColor.withValues(alpha: 0.15)
+            : (value == 0 ? Colors.grey.withValues(alpha: 0.05) : iconColor.withValues(alpha: 0.06)),
         border: Border.all(
           color: isSelected 
-              ? iconColor.withOpacity(0.6)
-              : iconColor.withOpacity(0.2),
+              ? iconColor.withValues(alpha: 0.6)
+              : iconColor.withValues(alpha: 0.2),
           width: isSelected ? 2 : 1,
         ),
       ),
@@ -373,16 +373,16 @@ class NotificationPreferences extends ConsumerWidget {
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: isSelected 
-                      ? iconColor.withOpacity(0.25)
-                      : iconColor.withOpacity(0.12),
+                      ? iconColor.withValues(alpha: 0.25)
+                      : iconColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                   border: isSelected 
-                      ? Border.all(color: iconColor.withOpacity(0.4), width: 1)
+                      ? Border.all(color: iconColor.withValues(alpha: 0.4), width: 1)
                       : null,
                 ),
                 child: Icon(
                   icon,
-                  color: isSelected ? iconColor : iconColor.withOpacity(0.7),
+                  color: isSelected ? iconColor : iconColor.withValues(alpha: 0.7),
                   size: 18,
                 ),
               ),
@@ -406,7 +406,7 @@ class NotificationPreferences extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 11,
                         color: isSelected 
-                            ? iconColor.withOpacity(0.8) 
+                            ? iconColor.withValues(alpha: 0.8) 
                             : Colors.grey.shade600,
                         fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
                       ),
@@ -430,104 +430,4 @@ class NotificationPreferences extends ConsumerWidget {
     );
   }
 
-  Widget _buildCompactIntervalOption({
-    required BuildContext context,
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required int value,
-    required Color iconColor,
-    required int selectedValue,
-    required Function(int?) onChanged,
-  }) {
-    final isSelected = selectedValue == value;
-    
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: isSelected 
-            ? iconColor.withOpacity(0.15)
-            : (value == 0 ? Colors.grey.withOpacity(0.05) : iconColor.withOpacity(0.06)),
-        border: Border.all(
-          color: isSelected 
-              ? iconColor.withOpacity(0.6)
-              : iconColor.withOpacity(0.2),
-          width: isSelected ? 2 : 1,
-        ),
-      ),
-      child: InkWell(
-        onTap: () => onChanged(value),
-        borderRadius: BorderRadius.circular(10),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          child: Row(
-            children: [
-              // Icon
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: isSelected 
-                      ? iconColor.withOpacity(0.25)
-                      : iconColor.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: Icon(
-                  icon,
-                  color: isSelected ? iconColor : iconColor.withOpacity(0.7),
-                  size: 12,
-                ),
-              ),
-              const SizedBox(width: 6),
-              // Text content
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                        color: isSelected ? iconColor : null,
-                        fontSize: 10,
-                        height: 1.1,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 8,
-                        color: isSelected 
-                            ? iconColor.withOpacity(0.8) 
-                            : Colors.grey.shade600,
-                        height: 1.0,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              // Radio indicator
-              Container(
-                width: 5,
-                height: 5,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isSelected ? iconColor : Colors.transparent,
-                  border: Border.all(
-                    color: isSelected ? iconColor : Colors.grey.shade400,
-                    width: 1,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
