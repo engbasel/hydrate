@@ -29,8 +29,17 @@ class BackgroundNotificationService {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('app_icon');
 
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+    const DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
+        );
+
+    const InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsIOS,
+    );
 
     await _notificationsPlugin.initialize(initializationSettings);
   }
@@ -137,6 +146,14 @@ class BackgroundNotificationService {
     return prefs.getInt(_intervalKey) ?? 0;
   }
 
+  /// Mark reminders as enabled with a given interval (used on iOS where
+  /// WorkManager is not available and scheduling is done via local notifications)
+  static Future<void> markEnabled(int intervalMinutes) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_intervalKey, intervalMinutes);
+    await prefs.setBool(_enabledKey, true);
+  }
+
   /// Show immediate notification for testing
   static Future<void> showTestNotification() async {
     await _showWaterNotification(isTest: true);
@@ -178,8 +195,14 @@ class BackgroundNotificationService {
           visibility: NotificationVisibility.public,
           channelShowBadge: true,
           category: AndroidNotificationCategory.reminder,
-          color: notificationColor, // This affects the notification accent color
-          colorized: true, // Enable colorization based on the color property
+          color: notificationColor,
+          colorized: true,
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+          interruptionLevel: InterruptionLevel.active,
         ),
       ),
     );

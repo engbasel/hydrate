@@ -68,16 +68,9 @@ class DailyChart extends ConsumerWidget {
           )
           .firstOrNull;
 
-      // Only add spots for days that actually have data (including 0 if there's a daily summary)
-      if (dayData != null) {
-        final intake = dayData.totalIntakeMl / 1000.0;
-        chartSpots.add(FlSpot(i.toDouble(), intake));
-      }
-    }
-
-    // If we have no data points, add a single point at 0 for today
-    if (chartSpots.isEmpty) {
-      chartSpots.add(FlSpot(6.0, 0.0)); // Today is index 6
+      // Always add a spot — 0.0 for days with no data so the chart has no gaps
+      final intake = dayData != null ? dayData.totalIntakeMl / 1000.0 : 0.0;
+      chartSpots.add(FlSpot(i.toDouble(), intake));
     }
 
     final maxIntake = chartSpots.isEmpty

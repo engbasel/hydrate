@@ -9,6 +9,12 @@ class WaterRepositoryImpl implements IWaterRepository {
 
   WaterRepositoryImpl(this._waterLogBox, this._dailySummaryBox);
 
+  static String _dateKey(DateTime date) =>
+      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+  static bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
   @override
   Future<void> addWaterLog(WaterLog log) async {
     await _waterLogBox.add(log);
@@ -17,44 +23,34 @@ class WaterRepositoryImpl implements IWaterRepository {
   @override
   Future<List<WaterLog>> getWaterLogsForDate(DateTime date) async {
     return _waterLogBox.values
-        .where(
-          (log) =>
-              log.timestamp.year == date.year &&
-              log.timestamp.month == date.month &&
-              log.timestamp.day == date.day,
-        )
+        .where((log) => _isSameDay(log.timestamp, date))
         .toList();
   }
 
   @override
   Future<void> clearWaterLogsForDate(DateTime date) async {
-    // Find keys of logs for the specified date
     final keysToDelete = <dynamic>[];
 
-    for (int i = 0; i < _waterLogBox.length; i++) {
-      final log = _waterLogBox.getAt(i);
-      if (log != null &&
-          log.timestamp.year == date.year &&
-          log.timestamp.month == date.month &&
-          log.timestamp.day == date.day) {
-        keysToDelete.add(i);
+    for (final key in _waterLogBox.keys) {
+      final log = _waterLogBox.get(key);
+      if (log != null && _isSameDay(log.timestamp, date)) {
+        keysToDelete.add(key);
       }
     }
 
-    // Delete logs in reverse order to maintain correct indices
-    for (int i = keysToDelete.length - 1; i >= 0; i--) {
-      await _waterLogBox.deleteAt(keysToDelete[i]);
+    for (final key in keysToDelete) {
+      await _waterLogBox.delete(key);
     }
   }
 
   @override
   Future<void> addDailySummary(DailySummary summary) async {
-    await _dailySummaryBox.put(summary.date.toIso8601String(), summary);
+    await _dailySummaryBox.put(_dateKey(summary.date), summary);
   }
 
   @override
   Future<DailySummary?> getDailySummaryForDate(DateTime date) async {
-    return _dailySummaryBox.get(date.toIso8601String());
+    return _dailySummaryBox.get(_dateKey(date));
   }
 
   @override

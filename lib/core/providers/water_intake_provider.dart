@@ -86,14 +86,11 @@ class WaterIntakeNotifier extends StateNotifier<WaterIntakeState> {
   }
 
   Future<void> resetDailyIntake() async {
-    // Clear today's water logs from storage
-    final today = DateTime.now();
-    await _waterRepository.clearWaterLogsForDate(today);
-
-    // Reset the in-memory state
+    // Reset UI immediately for snappy feedback
     state = state.copyWith(currentIntake: 0);
 
-    // Update daily summary to reflect the reset
+    final today = DateTime.now();
+    await _waterRepository.clearWaterLogsForDate(today);
     await _updateDailySummary();
   }
 

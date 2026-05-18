@@ -1,8 +1,8 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:hydrate/core/services/background_notification_service.dart';
 
 class NotificationService {
@@ -40,40 +40,36 @@ class NotificationService {
     );
   }
   
-  /// Sets up reliable background water reminders using WorkManager
-  /// This method works across all app states and survives phone restarts
+  /// Sets up water reminders. Uses WorkManager on Android, local scheduled
+  /// notifications on iOS (WorkManager is Android-only).
   Future<void> scheduleIntervalReminders(int intervalMinutes) async {
-    print('🔧 Setting up water reminders: $intervalMinutes minutes');
-    
     if (intervalMinutes <= 0) {
-      print('🛑 Disabling water reminders');
       await BackgroundNotificationService.stopWaterReminders();
       await cancelAllNotifications();
       await _clearStoredInterval();
       return;
     }
 
-    // Check if we need to reschedule
     final currentInterval = await BackgroundNotificationService.getCurrentInterval();
     final isEnabled = await BackgroundNotificationService.areRemindersEnabled();
-    
+
     if (isEnabled && currentInterval == intervalMinutes) {
-      print('✅ Water reminders already running with interval $intervalMinutes minutes. No change needed.');
       return;
     }
 
-    print('🚀 Starting reliable background water reminders every $intervalMinutes minutes');
-    
-    // Cancel any existing scheduled notifications and background tasks
     await cancelAllNotifications();
-    
-    // Start the new background reminder service
-    await BackgroundNotificationService.startWaterReminders(intervalMinutes);
-    
-    // Store the current interval
+
+    if (Platform.isIOS) {
+      // iOS: schedule individual local notifications for the next 48 hours
+      await _scheduleRepeatingNotification(intervalMinutes);
+      // Mark as enabled so the check above works on subsequent calls
+      await BackgroundNotificationService.markEnabled(intervalMinutes);
+    } else {
+      // Android: use WorkManager so notifications survive app closure
+      await BackgroundNotificationService.startWaterReminders(intervalMinutes);
+    }
+
     await _storeScheduleInfo(intervalMinutes);
-    
-    print('✅ Background water reminders activated! They will work even when app is closed.');
   }
 
   /// Check if we need to reschedule the notification
