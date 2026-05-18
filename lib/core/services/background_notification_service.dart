@@ -68,7 +68,7 @@ class BackgroundNotificationService {
           _taskName,
           frequency: Duration(minutes: intervalMinutes),
           constraints: Constraints(
-            networkType: NetworkType.not_required,
+            networkType: NetworkType.notRequired,
             requiresBatteryNotLow: false,
             requiresCharging: false,
             requiresDeviceIdle: false,
@@ -95,7 +95,7 @@ class BackgroundNotificationService {
       _taskName,
       initialDelay: Duration(minutes: intervalMinutes),
       constraints: Constraints(
-        networkType: NetworkType.not_required,
+        networkType: NetworkType.notRequired,
         requiresBatteryNotLow: false,
         requiresCharging: false,
         requiresDeviceIdle: false,

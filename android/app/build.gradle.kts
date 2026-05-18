@@ -45,3 +45,16 @@ dependencies {
 flutter {
     source = "../.."
 }
+
+// macOS creates ._* resource-fork files on external/non-APFS drives alongside every
+// file Gradle writes. AAPT2 chokes on them during resource linking. This hook
+// deletes them from the build directory before any resource-processing task runs.
+afterEvaluate {
+    tasks.matching { it.name.matches(Regex("process.*Resources")) }.configureEach {
+        doFirst {
+            fileTree(rootProject.layout.buildDirectory.get().asFile) {
+                include("**/._*")
+            }.forEach { it.delete() }
+        }
+    }
+}
